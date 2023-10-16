@@ -1,0 +1,103 @@
+{% extends "game/base.html" %}
+{% load crispy_forms_tags %} <!--import Django Crispy Forms-->
+{% block content %}
+
+    <h1>{{ user.username }}'s Profile</h1>
+    <h3>Round: {{ round }}</h3>
+    <!--Profile Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Budget</th>
+            <th scope="col">Revenue</th>
+            <th scope="col">Total Cost</th>
+            <th scope="col">Profit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in profiles %}
+            <tr scope="row">
+                <td>{{ p.budget}}€</td>
+                <td>{{ p.revenue}}€</td> 
+                <td>{{ p.total_cost}}€</td> 
+                <td>{{ p.profit}}€</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a  href="{% url 'game-data' %}" class="btn btn-primary" role="button">Display Technology Data</a>
+
+    <h2>Kraftwerkspark</h2>
+    <!--Kraftwerkspark Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Technology</th>
+            <th scope="col">Capacity</th>
+            <th scope="col">Verbleibende Laufzeit in Runden</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for gen in generation_systems %}
+            <tr scope="row">
+                <td>{{ gen.id}}</td>
+                <td>{{ gen.technology}}</td>
+                <td>{{ gen.capacity}}</td>  
+                <td>{{ gen.until_decommissioned}}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+        <!-- Formular Desommission -->
+        <div>
+            <form method="POST">
+                <fieldset class="form-group">
+                {% csrf_token %}
+                    <legend class="border-bottom mb-4">Decommission Generator</legend>
+                    {{ form_decommission|crispy }} 
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="decommbtn">Confirm Decommission</button>
+                </div>
+            </form>
+        </div>
+
+    <h2>Bauaufträge</h2>
+    <!--Kraftwerkspark Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Technology</th>
+            <th scope="col">Verbleibende Bauzeit in Runden</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for con in constructions %}
+            <tr scope="row">
+                <td>{{ con.id}}</td>
+                <td>{{ con.technology}}</td> 
+                <td>{{ con.until_constructed}}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Formular Bauftrag -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Neuer Auftrag</legend>
+                {{ form_construction|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="constructbtn">Confirm Construction</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock content%}

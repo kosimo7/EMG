@@ -1,0 +1,80 @@
+{% extends "game/base.html" %}
+{% load crispy_forms_tags %} <!--import Django Crispy Forms-->
+{% load custom_tags %}
+{% block content %}
+
+<h1>Bidding</h1>
+<h3>Total Available Capacity</h3>
+
+    <!--Kapazitäten Kummuliert Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Technology</th>
+            <th scope="col">Total Capacity</th>
+            <th scope="col">Remaining Capacity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in capsum.items %} 
+            <tr scope="row">
+                <td>{{ key }}</td>
+                <td>{{ value }}</td>
+                <td>{{ remaining_cap|dict_key:key }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<h3>Bidding Overview</h3>
+    <!--Gebote Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Technology</th>
+            <th scope="col">Price</th>
+            <th scope="col">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bids %}
+            <tr scope="row">
+                <td>{{ b.id}}</td>
+                <td>{{ b.technology}}</td>
+                <td>{{ b.price}}</td>  
+                <td>{{ b.amount}}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Formular Gebotsabgabe -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Submit Bids</legend>
+                {{ form_bidding|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="bidbtn">Gebot Bestätigen</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Formular Gebote Löschen -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Delete Bids</legend>
+                {{ form_deletebid|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="dltbidbtn">Confirm Deletion</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock content%}
