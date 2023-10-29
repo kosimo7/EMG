@@ -29,4 +29,9 @@ urlpatterns = [
     path('', include('game.urls')), # weil der path hier leer ist, wird diese App zur homepage
     path('construction_order/', user_views.construction_order, name='users-construction_order'),
     path('bidding/', user_views.bidding, name='users-bidding'),
+    path('staff_new_game/', user_views.staff_new_game, name='users-staff_new_game'),
+    path('join_game/', user_views.join_game, name='users-join_game'),
+    path('waiting_room/', user_views.waiting_room, name='users-waiting_room'),
+    path('ready_room/', user_views.ready_room, name='users-ready_room'),
+    path('overview/', user_views.overview, name='users-overview'),
 ]
