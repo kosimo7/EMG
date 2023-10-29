@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 # Technology Database
 class tech(models.Model):
@@ -16,10 +16,34 @@ class tech(models.Model):
     def __str__(self):
         return str(self.technology)
 
-# Variables/Settings
-class settings(models.Model):
+# Game sessions
+class sessions(models.Model):
     name = models.CharField(max_length=30, unique=True)
-    value = models.IntegerField()
+    ready = models.BooleanField(default=False)
+    variables = models.CharField(max_length=30, default='game_variables')
 
     def __str__(self):
         return str(self.name)
+
+# Basic Settings and Variables
+class settings(models.Model):
+    name = models.CharField(max_length=30)
+    value = models.IntegerField()
+    game = models.ForeignKey(sessions, on_delete=models.CASCADE, to_field="name")
+
+    def __str__(self):
+        return str(self.name)
+
+# Demand & Capacity Factor
+class demand_cf(models.Model):
+    demand = models.IntegerField()
+    cf_wind = models.FloatField()
+    cf_pv = models.FloatField()
+    round = models.IntegerField()
+    key = models.CharField(max_length=30, default='game_variables')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields = ['round', 'key'], name = 'unique_set') # Beide Felder müssen als Kombination unique sein
+        ]
+

@@ -32,12 +32,14 @@
               <div class="navbar-nav"> <!-- Darstellung Abhängig vom Login Status -->
                 {% if user.is_authenticated %} <!-- View while logged in -->
                   {% if user.is_staff %}<!-- View while staff member -->
-                  <a class="nav-item nav-link" href="{% url 'users-bidding' %}">Bidding</a>
-                  <a class="nav-item nav-link" href="{% url 'users-staff_profile' %}">Staff Profile</a>
+                  <a class="nav-item nav-link" href="{% url 'users-staff_new_game' %}">New Game</a>
+                  <a class="nav-item nav-link" href="{% url 'users-staff_profile' %}">Control Center</a>
                   <a class="nav-item nav-link" href="{% url 'users-logout' %}">Logout</a>
                   {% else %}
+                  <a class="nav-item nav-link" href="{% url 'users-join_game' %}">Join Game</a>
+                  <a class="nav-item nav-link" href="{% url 'users-overview' %}">Last Round Results</a>
+                  <a class="nav-item nav-link" href="{% url 'users-profile' %}">Generation System</a>
                   <a class="nav-item nav-link" href="{% url 'users-bidding' %}">Bidding</a>
-                  <a class="nav-item nav-link" href="{% url 'users-profile' %}">Profile</a>
                   <a class="nav-item nav-link" href="{% url 'users-logout' %}">Logout</a>
                   {% endif %}
                 {% else %} <!-- View while logged out-->
@@ -62,7 +64,9 @@
       {% endif %}
 
       {% block content %}{% endblock %} <!--inserts content html files-->
-    </div>
+      
+    <!-- Sidebar -->
+    <!-- </div>
     <div class="col-md-4">
       <div class="content-section">
         <h3>Our Sidebar</h3>
@@ -76,9 +80,9 @@
         </p>
       </div>
     </div>
-  </div>
+  </div> -->
 </main>
-       
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
