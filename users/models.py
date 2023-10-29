@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from game.models import tech
+from game.models import (
+    tech,
+    sessions,
+    )
 
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) # User und Profile habe 1-zu-1 Beziehung und User is Fremdschlüssel; Beim Löschen des Users wird auch Profile gelöscht
@@ -8,12 +11,14 @@ class Profile(models.Model):
     revenue = models.IntegerField(default=0)
     profit = models.IntegerField(default=0)
     total_cost = models.IntegerField(default=0)
+    joined_game = models.ForeignKey(sessions, on_delete=models.SET_NULL, to_field="name", db_column="name", blank=True, null=True)
+    ready = models.BooleanField(default=False)
     
     def __str__(self):
         return f'{self.user.username} Profile'
     
 class generation_system(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) #id
+    user = models.ForeignKey(User, on_delete=models.CASCADE) 
     technology = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology")
     capacity = models.IntegerField(default=0)
     until_decommissioned = models.PositiveIntegerField(default=0)
@@ -37,4 +42,11 @@ class bids(models.Model):
 
     def __str__(self):
         return f'Bid_ID: {self.id}, User: {self.user.username}, Tech: {self.technology}, Price: {self.price}, Capacity: {self.amount}'
+    
+class bids_meritorder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology")
+    price = models.PositiveIntegerField()   # €/MWh
+    amount = models.PositiveIntegerField()  # MW
+
 

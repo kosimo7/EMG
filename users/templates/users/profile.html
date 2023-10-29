@@ -3,7 +3,10 @@
 {% block content %}
 
     <h1>{{ user.username }}'s Profile</h1>
-    <h3>Round: {{ round }}</h3>
+    <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();" >Refresh Page</a><br>
+    <h3 style="float:left; ">Joined Game: {{ game }}</h3>
+    <h3 style="float:right;margin-right:500px;">Round: {{ round }}</h3>
+
     <!--Profile Tabelle-->
     <table class="table table-striped">
         <thead>
@@ -11,7 +14,7 @@
             <th scope="col">Budget</th>
             <th scope="col">Revenue</th>
             <th scope="col">Total Cost</th>
-            <th scope="col">Profit</th>
+            <th scope="col">Profit (total)</th>
             </tr>
         </thead>
         <tbody>
@@ -26,9 +29,52 @@
         </tbody>
     </table>
 
-    <a  href="{% url 'game-data' %}" class="btn btn-primary" role="button">Display Technology Data</a>
+    <!-- Market Overview -->
+    <h4>Demand and Weather forecast</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Demand (current round)</th>
+            <th scope="col">Demand t+1</th>
+            <th scope="col">Demand t+2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ demand }} MWh</td>
+                <td>{{ demand_forecast_plus1 }} MWh</td> 
+                <td>{{ demand_forecast_plus2 }} MWh</td> 
+            </tr>
+        </tbody>
+    </table>    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Capacity Factor Wind (current round)</th>
+            <th scope="col">Capacity Factor Solar (current round)</th>
+            <th scope="col">Capacity Factor Wind t+1</th>
+            <th scope="col">Capacity Factor Solar t+1</th>
+            <th scope="col">Capacity Factor Wind t+2</th>
+            <th scope="col">Capacity Factor Solar t+2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ cf_wind }} </td>
+                <td>{{ cf_solar }} </td> 
+                <td>{{ cf_wind_forecast_plus1 }} </td> 
+                <td>{{ cf_solar_forecast_plus1 }} </td> 
+                <td>{{ cf_wind_forecast_plus2 }} </td> 
+                <td>{{ cf_solar_forecast_plus2 }} </td> 
+            </tr>
+        </tbody>
+    </table>
+    <br>
 
-    <h2>Kraftwerkspark</h2>
+    <h2>Generation System</h2>
+    <h4>Click here to view the detailed data for each generation unit and technology</h4>
+    <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
+    <h4>All available power plants</h4>
     <!--Kraftwerkspark Tabelle-->
     <table class="table table-striped">
         <thead>
@@ -36,7 +82,7 @@
             <th scope="col">ID</th>
             <th scope="col">Technology</th>
             <th scope="col">Capacity</th>
-            <th scope="col">Verbleibende Laufzeit in Runden</th>
+            <th scope="col">Remaining Lifetime (rounds)</th>
             </tr>
         </thead>
         <tbody>
@@ -51,6 +97,9 @@
         </tbody>
     </table>
 
+    <br>
+    <h3>Construction Step: Use your available budget to build new power plants or decommission existing ones.</h3>
+    
         <!-- Formular Desommission -->
         <div>
             <form method="POST">
@@ -65,14 +114,14 @@
             </form>
         </div>
 
-    <h2>Bauaufträge</h2>
+    <h2>Construction Orders</h2>
     <!--Kraftwerkspark Tabelle-->
     <table class="table table-striped">
         <thead>
             <tr>
             <th scope="col">ID</th>
             <th scope="col">Technology</th>
-            <th scope="col">Verbleibende Bauzeit in Runden</th>
+            <th scope="col">Remaining Construction Time (rounds)</th>
             </tr>
         </thead>
         <tbody>
@@ -91,7 +140,7 @@
         <form method="POST">
             <fieldset class="form-group">
             {% csrf_token %}
-                <legend class="border-bottom mb-4">Neuer Auftrag</legend>
+                <legend class="border-bottom mb-4">New Construction Order</legend>
                 {{ form_construction|crispy }} 
             </fieldset>
             <div class="form-group">
@@ -99,5 +148,28 @@
             </div>
         </form>
     </div>
+
+    
+    <a  href="{% url 'users-bidding' %}" class="btn btn-primary mb-4" role="button" style="float:left; margin-right:100px;">Continue: Bidding Step</a>
+
+    
+    <!-- Go Back Button -->
+    <a  class="btn btn-secondary mb-4" role="button" onclick="history.back()" style="float:right;">Go Back</a>
+
+    <!-- Ready for next Round -->
+    <div style="clear:both">
+        <form method="POST" >
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-2">If you are ready for the next round, please press the button below!</legend>
+                {{ form_playerready|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not return!');" name="constructbtn">I am Ready!</button>
+            </div>
+        </form>
+    </div>
+
+    
 
 {% endblock content%}

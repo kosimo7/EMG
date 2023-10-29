@@ -1,0 +1,43 @@
+{% extends "game/base.html" %}
+{% load custom_tags %}
+{% load crispy_forms_tags %} <!--import Django Crispy Forms-->
+{% block content %}
+
+<h2>Please join a Game from the list below and wait for instructions</h2>
+<h3>You can only enter a game if it has not already started</h3>
+
+    <!--Games Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Game ID</th>
+                <th scope="col">Name </th>
+                <th scope="col">Game has already started</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for g in game %}
+            <tr scope="row">
+                <td>{{ g.id}}</td>
+                <td>{{ g.name}}</td>
+                <td>{{ g.ready}}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Join Game Form -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <!-- <legend class="border-bottom mb-4">Join Game</legend> -->
+                {{ form_joingame|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');">Join Game</button>
+            </div>
+        </form> 
+    </div>
+
+{% endblock content%}

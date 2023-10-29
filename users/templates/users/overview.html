@@ -1,0 +1,60 @@
+{% extends "game/base.html" %}
+{% load custom_tags %}
+{% load crispy_forms_tags %} <!--import Django Crispy Forms-->
+{% block content %}
+
+<!-- <meta http-equiv="refresh" content="3">  -->
+
+<h1>Last Round Results Overview</h1>
+<br>
+<h3>{{ game.name }}: Results of Round {{ last_round }}</h3>
+
+    <!-- Overview -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Clearing Price</th>
+                <th scope="col">Revenue (last round)</th>
+                <th scope="col">Total Cost (last round)</th>
+                <th scope="col">Profit (total)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ clearing_price }}€</td>
+                <td>{{ profile.revenue }}€</td>
+                <td>{{ profile.total_cost }}€</td>
+                <td>{{ profile.profit }}€</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Merit Order -->
+    <!-- <h3>Merit Order</h3> -->
+    <!-- <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Technology</th>
+                <th scope="col">Revenue</th>
+                <th scope="col">Total Cost</th>
+                <th scope="col">Profit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ clearing_price }}€</td>
+                <td>placeholder</td>
+                <td>placeholder</td>
+                <td>placeholder</td>
+            </tr>
+        </tbody>
+    </table>     -->
+
+
+
+
+<br>
+<h3>Proceed to Round {{ round }}</h3>
+<a  href="{% url 'users-profile' %}" class="btn btn-primary" role="button">Continue</a>
+
+{% endblock content%}

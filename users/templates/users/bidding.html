@@ -4,23 +4,46 @@
 {% block content %}
 
 <h1>Bidding</h1>
+<a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();" >Refresh Page</a><br>
 <h3>Total Available Capacity</h3>
+
+    <!-- Market Overview -->
+    <h4>Demand forecast</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Demand (current round)</th>
+            <th scope="col">Demand t+1</th>
+            <th scope="col">Demand t+2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ demand }} MWh</td>
+                <td>{{ demand_forecast_plus1 }} MWh</td> 
+                <td>{{ demand_forecast_plus2 }} MWh</td> 
+            </tr>
+        </tbody>
+    </table> 
+
+    <h4>Click here to view the detailed data for each generation unit and technology</h4>
+    <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
 
     <!--Kapazitäten Kummuliert Tabelle-->
     <table class="table table-striped">
         <thead>
             <tr>
             <th scope="col">Technology</th>
-            <th scope="col">Total Capacity</th>
-            <th scope="col">Remaining Capacity</th>
+            <th scope="col">Total available Capacity (CF applied)</th>
+            <th scope="col">Remaining available Capacity for bidding </th>
             </tr>
         </thead>
         <tbody>
             {% for key, value in capsum.items %} 
             <tr scope="row">
                 <td>{{ key }}</td>
-                <td>{{ value }}</td>
-                <td>{{ remaining_cap|dict_key:key }}</td>
+                <td>{{ value|floatformat }}</td> <!-- |floatformat rundet die Zahlen für bessere Darstellung -->
+                <td>{{ remaining_cap|dict_key:key|floatformat }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -68,7 +91,7 @@
         <form method="POST">
             <fieldset class="form-group">
             {% csrf_token %}
-                <legend class="border-bottom mb-4">Delete Bids</legend>
+                <legend class="border-bottom mb-4">Delete Bid</legend>
                 {{ form_deletebid|crispy }} 
             </fieldset>
             <div class="form-group">
@@ -77,4 +100,23 @@
         </form>
     </div>
 
+    <!-- Go Back Button -->
+    <a  class="btn btn-secondary mb-4" role="button" onclick="history.back()" style="float:right;">Go Back</a>
+
+    <!-- Ready for next Round -->
+    <div style="clear:both">
+        <form method="POST" >
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-2">If you are ready for the next round, please press the button below!</legend>
+                {{ form_playerready|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not return!');" name="constructbtn">I am Ready!</button>
+            </div>
+        </form>
+    </div>
+    
+    
+    
 {% endblock content%}

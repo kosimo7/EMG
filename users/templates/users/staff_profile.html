@@ -3,10 +3,49 @@
 {% block content %}
 
     <h1>{{ user.username }}'s Profile</h1>
-    <h1>Gamemaster View</h1>
-    <h3>Round: {{ round }}</h3>
+    <h1>Gamemaster Control Center</h1>
+    <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh Page</a>
+    <h3>Currently hosting {{ hosted_game }}</h3><br>
+    
+    <!-- Start/End Game Form -->
+    <div style="float:left; margin-right:100px;">
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Start or End the Game</legend>
+                {{ form_startend|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                {% if not hosted_game.ready %}
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" >Start Game</button>
+                {% else %}
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" >End Game</button>
+                {% endif %}
+            </div>
+        </form> 
+    </div>
+
+    <!-- Delete Game Form -->
+    {% if not hosted_game.ready %}
+        <div style="float:middle">
+            <form method="POST">
+                <fieldset class="form-group">
+                {% csrf_token %}
+                    <legend class="border-bottom mb-4">Delete Game</legend>
+                    {{ form_deletegame|crispy }} 
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" >Delete Game</button>
+                </div>
+            </form> 
+        </div>
+    {% endif %}
+    <br>
+    <h3 style="clear:both">Round: {{ round }}</h3>
+
     <!-- Next Round Form -->
-    <div>
+    {% if hosted_game.ready %}
+    <div style="clear:both">
         <form method="POST">
             <fieldset class="form-group">
             {% csrf_token %}
@@ -18,8 +57,10 @@
             </div>
         </form> 
     </div>
+    {% endif %}
+    <br>
     <!-- Settings -->
-    <h3>Current Settings</h3>
+    <h3>Game Settings</h3>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -50,8 +91,25 @@
             </div>
         </form>
     </div>
+    
+    <!-- Export Data Form -->
+    {% if hosted_game.ready %}
+    <div style="clear:both">
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Export Game Data</legend>
+                Press the button below to export all game data of the current round for further analysis.
+                {{ form_ex|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Export</button>
+            </div>
+        </form> 
+    </div>
+    {% endif %}
 
-    <h3>Player Profiles</h3>
+    <h3>Joined Players</h3>
     <!--Profile Tabelle-->
     <table class="table table-striped">
         <thead>
@@ -61,6 +119,7 @@
                 <th scope="col">Revenue</th>
                 <th scope="col">Total Cost</th>
                 <th scope="col">Profit</th>
+                <th scope="col">Ready for next round?</th>
             </tr>
         </thead>
         <tbody>
@@ -71,12 +130,27 @@
                 <td>{{ p.revenue}}€</td> 
                 <td>{{ p.total_cost}}€</td> 
                 <td>{{ p.profit}}€</td>
+                <td>{{ p.ready}}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <h2>Kraftwerkspark (Alle Spieler)</h2>
+    <!-- Remove Player Form -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Remove a Player from the Game</legend>
+                {{ form_removeplayer|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="setngsbtn">Confirm Removal</button>
+            </div>
+        </form>
+    </div>
+
+    <h2>All Generation Systems</h2>
     <!--Kraftwerkspark Tabelle-->
     <table class="table table-striped">
         <thead>
@@ -99,7 +173,7 @@
         </tbody>
     </table>
 
-    <h2>Bauaufträge</h2>
+    <h2>Construction Orders</h2>
     <!--Kraftwerkspark Tabelle-->
     <table class="table table-striped">
         <thead>
@@ -123,7 +197,7 @@
     </table>
 
         <!-- Bids -->
-        <h2>Bids (All Players)</h2>
+        <h2>Bids</h2>
         <table class="table table-striped">
             <thead>
                 <tr>

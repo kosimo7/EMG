@@ -1,0 +1,56 @@
+{% extends "game/base.html" %}
+{% load custom_tags %}
+{% load crispy_forms_tags %} <!--import Django Crispy Forms-->
+{% block content %}
+
+<h2>Please choose a game to host or create a new game:</h2>
+
+    <!--Games Tabelle-->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Game ID</th>
+                <th scope="col">Name </th>
+                <th scope="col">Game has already started</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for g in game %}
+            <tr scope="row">
+                <td>{{ g.id}}</td>
+                <td>{{ g.name}}</td>
+                <td>{{ g.ready}}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Host Game Form -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Host Game</legend>
+                {{ form_hostgame|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');">Host Game</button>
+            </div>
+        </form> 
+    </div>
+
+    <!-- Create New Game Form -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">Create a New Game</legend>
+                {{ form_newgame|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');">Create New Game</button>
+            </div>
+        </form> 
+    </div>
+
+{% endblock content%}
