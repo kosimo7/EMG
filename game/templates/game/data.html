@@ -28,13 +28,13 @@
             <td>{{ data.fixed_cost }}</td> 
             <td>{{ data.fuel_cost }}</td> 
             <td>{{ data.carbon_content }}</td>
-            <td>{% multiply data.carbon_content carbon_price %}</td>
+            <td>{% multiply data.carbon_content carbon_price as carbon_cost %} {{ carbon_cost|floatformat:2 }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<h4>Current Carbon Price per t: {{ carbon_price }} €</h4>
+<h4>Current Carbon Price: {{ carbon_price }}€/t</h4>
 <br>
 
 <!-- Go Back Button -->

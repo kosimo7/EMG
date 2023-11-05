@@ -9,8 +9,8 @@ class tech(models.Model):
     build_time = models.IntegerField()
     operation_time = models.PositiveIntegerField()
     fixed_cost = models.PositiveIntegerField(default=0)
-    fuel_cost = models.FloatField()
-    carbon_content = models.FloatField()
+    fuel_cost = models.DecimalField(decimal_places=2, max_digits=10)
+    carbon_content = models.DecimalField(decimal_places=2, max_digits=10)
     default_amount = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -28,7 +28,7 @@ class sessions(models.Model):
 # Basic Settings and Variables
 class settings(models.Model):
     name = models.CharField(max_length=30)
-    value = models.IntegerField()
+    value = models.DecimalField(decimal_places=2, max_digits=20)
     game = models.ForeignKey(sessions, on_delete=models.CASCADE, to_field="name")
 
     def __str__(self):
@@ -37,8 +37,8 @@ class settings(models.Model):
 # Demand & Capacity Factor
 class demand_cf(models.Model):
     demand = models.IntegerField()
-    cf_wind = models.FloatField()
-    cf_pv = models.FloatField()
+    cf_wind = models.DecimalField(decimal_places=2, max_digits=3)
+    cf_pv = models.DecimalField(decimal_places=2, max_digits=3)
     round = models.IntegerField()
     key = models.CharField(max_length=30, default='game_variables')
 
