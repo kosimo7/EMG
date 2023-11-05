@@ -1,11 +1,12 @@
 {% extends "game/base.html" %}
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% block content %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> <!--import jQuery -->
 
     <h1>{{ user.username }}'s Profile</h1>
     <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();" >Refresh Page</a><br>
     <h3 style="float:left; ">Joined Game: {{ game }}</h3>
-    <h3 style="float:right;margin-right:500px;">Round: {{ round }}</h3>
+    <h3 style="float:right;margin-right:500px;">Round: {{ round|floatformat }}</h3>
 
     <!--Profile Tabelle-->
     <table class="table table-striped">
@@ -69,13 +70,30 @@
             </tr>
         </tbody>
     </table>
+    
+    <h4>Carbon Price</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Price per t of CO2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ carbon_price }}€</td>
+            </tr>
+        </tbody>
+    </table>
+    <div>
+        <h5>The Carbon Price changes each round based on the total amount of CO2 emitted in the previous round.</h5>
+    </div>
     <br>
-
+    
     <h2>Generation System</h2>
-    <h4>Click here to view the detailed data for each generation unit and technology</h4>
+    <h5>Click here to view the detailed data for each generation technology, including costs associated with each unit</h5>
     <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
     <h4>All available power plants</h4>
-    <!--Kraftwerkspark Tabelle-->
+    <!--Generation System Table-->
     <table class="table table-striped">
         <thead>
             <tr>
@@ -98,24 +116,71 @@
     </table>
 
     <br>
-    <h3>Construction Step: Use your available budget to build new power plants or decommission existing ones.</h3>
-    
-        <!-- Formular Desommission -->
+    <h3>Step One: Decommission.</h3>
+    <h5></h5>
+        <!-- Form Desommission -->
         <div>
             <form method="POST">
                 <fieldset class="form-group">
                 {% csrf_token %}
-                    <legend class="border-bottom mb-4">Decommission Generator</legend>
+                    <legend class="border-bottom mb-4">
+                        You can decommission power plants that are no longer needed.<br>
+                        They will be immediately deleted from your Generation System can no longer be used!
+                    </legend>
                     {{ form_decommission|crispy }} 
                 </fieldset>
                 <div class="form-group">
-                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="decommbtn">Confirm Decommission</button>
+                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="decommbtn" data-toggle="tooltip" title="The Generation Unit will be removed from your Generation System!">Confirm Decommission</button>
                 </div>
             </form>
         </div>
+    
+    <br>
+    <h3>Step Two: Construction.</h3>
+    
+    <!-- Form Construction -->
+    <div>
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-4">
+                    New Construction Order: You can use your available budget to build new generators. 
+                    Choose a technology to order construction of one generation unit. Investment costs are not refundable.
+                </legend>
+                {{ form_construction|crispy }} 
+            </fieldset>
+            <ul class="list-group mb-4">
+                <li class="list-group-item">Budget (€): {% for p in profiles %} {{p.budget}} {% endfor %}</li>
+                <li class="list-group-item">Investment Cost per Unit (€): <div id="investment_cost" style="display:inline;"></div></li>
+                <li class="list-group-item">Constructon Time (rounds): <div id="build_time" style="display:inline;"></div></li>
+            </ul>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="constructbtn" data-toggle="tooltip" title="Investment Cost is not refundable!">Confirm Construction</button>
+            </div>
+        </form>
+    </div>
+    <br>
+    <!-- JavaScript -->
+    <script>
+        $(document).ready(function () {
+            // Handle the change event of the 'technology' field
+            $('#id_technology').on('change', function () {
+                var selectedValue = $(this).val();
+                // Perform an AJAX request to fetch dynamic content based on the selected value
+                jQuery.ajax({
+                    url: 'get_dynamic_content/',  // Replace with the actual URL
+                    data: { selected_value: selectedValue },
+                    success: function (data) {
+                        $('#investment_cost').html(data.investment_cost);
+                        $('#build_time').html(data.build_time);
+                    }
+                });
+            });
+        });
+    </script>
 
-    <h2>Construction Orders</h2>
-    <!--Kraftwerkspark Tabelle-->
+    <h3>All active Construction Orders</h3>
+    <!--Construction Table-->
     <table class="table table-striped">
         <thead>
             <tr>
@@ -134,42 +199,14 @@
             {% endfor %}
         </tbody>
     </table>
-
-    <!-- Formular Bauftrag -->
-    <div>
-        <form method="POST">
-            <fieldset class="form-group">
-            {% csrf_token %}
-                <legend class="border-bottom mb-4">New Construction Order</legend>
-                {{ form_construction|crispy }} 
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="constructbtn">Confirm Construction</button>
-            </div>
-        </form>
-    </div>
+    <br>
+    
 
     
-    <a  href="{% url 'users-bidding' %}" class="btn btn-primary mb-4" role="button" style="float:left; margin-right:100px;">Continue: Bidding Step</a>
+    <a  href="{% url 'users-bidding' %}" class="btn btn-primary mb-4" role="button" style="float:left; margin-right:100px;">Continue to Step Three: Bidding</a>
 
     
     <!-- Go Back Button -->
     <a  class="btn btn-secondary mb-4" role="button" onclick="history.back()" style="float:right;">Go Back</a>
-
-    <!-- Ready for next Round -->
-    <div style="clear:both">
-        <form method="POST" >
-            <fieldset class="form-group">
-            {% csrf_token %}
-                <legend class="border-bottom mb-2">If you are ready for the next round, please press the button below!</legend>
-                {{ form_playerready|crispy }} 
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not return!');" name="constructbtn">I am Ready!</button>
-            </div>
-        </form>
-    </div>
-
-    
 
 {% endblock content%}

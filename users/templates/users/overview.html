@@ -7,54 +7,121 @@
 
 <h1>Last Round Results Overview</h1>
 <br>
-<h3>{{ game.name }}: Results of Round {{ last_round }}</h3>
+<h3>{{ game.name }}: Results of Round {{ last_round|floatformat }}</h3>
 
     <!-- Overview -->
     <table class="table table-striped">
         <thead>
             <tr>
                 <th scope="col">Clearing Price</th>
+                <th scope="col">New Carbon Price</th>
+                {% if not user.is_staff %}
                 <th scope="col">Revenue (last round)</th>
                 <th scope="col">Total Cost (last round)</th>
+                <th scope="col">Profit (last round)</th>
+                <th scope="col">Profit (total)</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ clearing_price }}€</td>
+                <td>{{ carbon_price }}€</td>
+                {% if not user.is_staff %}
+                <td>{{ profile.revenue }}€</td>
+                <td>{{ profile.total_cost }}€</td>
+                <td>{% subtract profile.revenue profile.total_cost as round_profit %} {{ round_profit }}€</td>
+                <td>{{ profile.profit }}€</td>
+                {% endif %}
+            </tr>
+        </tbody>
+    </table>
+
+    {% if not user.is_staff %}
+    <!-- Accepted Bids -->
+    <h3>Your accepted Bids</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Player</th>
+                <th scope="col">Price €/MWh</th>
+                <th scope="col">Amount MW</th>
+                <th scope="col">Technology</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in accepted_bids %}
+            <tr scope="row">
+                <td>{{ bid.id }}</td>
+                <td>{{ bid.user.username }}</td>
+                <td>{{ bid.price }} €/MWh</td>
+                <td>{{ bid.amount }} MW</td>
+                <td>{{ bid.technology }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>    
+    {% endif %}
+
+    <!-- Player Ranking -->
+    <h3>Player Ranking by Total Profit</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Name</th>
+                <th scope="col">Revenue (last round)</th>
+                {% if user.is_staff %}
+                <th scope="col">Total Cost (last round)</th>
+                {% endif %}
                 <th scope="col">Profit (total)</th>
             </tr>
         </thead>
         <tbody>
+            {% for p in players_ranking %}
             <tr scope="row">
-                <td>{{ clearing_price }}€</td>
-                <td>{{ profile.revenue }}€</td>
-                <td>{{ profile.total_cost }}€</td>
-                <td>{{ profile.profit }}€</td>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ p.user.username }}</td>
+                <td>{{ p.revenue }}€</td>
+                {% if user.is_staff %}
+                <td>{{ p.total_cost }}€</td>
+                {% endif %}
+                <td>{{ p.profit }}€</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
-    
+
+    {% if user.is_staff %}
     <!-- Merit Order -->
-    <!-- <h3>Merit Order</h3> -->
-    <!-- <table class="table table-striped">
+    <h3>Merit Order</h3>
+    <table class="table table-striped">
         <thead>
             <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Player</th>
+                <th scope="col">Price €/MWh</th>
+                <th scope="col">Amount MW</th>
                 <th scope="col">Technology</th>
-                <th scope="col">Revenue</th>
-                <th scope="col">Total Cost</th>
-                <th scope="col">Profit</th>
             </tr>
         </thead>
         <tbody>
+            {% for bid in merit_order %}
             <tr scope="row">
-                <td>{{ clearing_price }}€</td>
-                <td>placeholder</td>
-                <td>placeholder</td>
-                <td>placeholder</td>
+                <td>{{ bid.id }}</td>
+                <td>{{ bid.user.username }}</td>
+                <td>{{ bid.price }} €/MWh</td>
+                <td>{{ bid.amount }} MW</td>
+                <td>{{ bid.technology }}</td>
             </tr>
+            {% endfor %}
         </tbody>
-    </table>     -->
-
-
-
+    </table>    
+    {% endif %}
 
 <br>
-<h3>Proceed to Round {{ round }}</h3>
+<h3>Proceed to Round {{ round|floatformat }}</h3>
 <a  href="{% url 'users-profile' %}" class="btn btn-primary" role="button">Continue</a>
 
 {% endblock content%}

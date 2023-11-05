@@ -17,3 +17,8 @@ def multiply(a, b, *args, **kwargs):
 def divide(a, b, *args, **kwargs):
     # simple tag to divide variables within templates
     return a / b
+
+@register.simple_tag()
+def subtract(a, b, *args, **kwargs):
+    # simple tag to subtract variables within templates
+    return a - b

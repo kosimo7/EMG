@@ -23,6 +23,7 @@ class UserRegisterForm(UserCreationForm): # RegisterForm basiert auf Standard Us
 # Construction Form
 class ConstructionForm(forms.ModelForm): # Formular basierend auf der construction-Datenbank
     add_generator = forms.BooleanField(widget=forms.HiddenInput, initial=True) # Versteckte Variable
+    amount = forms.IntegerField(initial=1, label='How many units?', required=True)
     
     class Meta:
         model = construction             # zugrundliegende Datenbank
@@ -39,6 +40,7 @@ class DecommissionForm(forms.Form): # Formular basierend auf der generation_syst
 # Bidding Form
 class BiddingForm(forms.ModelForm):
     submit_bid = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
+
     class Meta:
         model = bids
         fields = ['technology', 'price', 'amount']
@@ -50,8 +52,20 @@ class BiddingForm(forms.ModelForm):
 
 # Delete Bids Form
 class DeleteBidForm(forms.Form):
+    # Get request.user from view.py
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # Remove 'user' from kwargs if it exists
+        super(DeleteBidForm, self).__init__(*args, **kwargs)
+        self.user = user
+        # Update the queryset for the name field based on users bids
+        self.fields['bid_id'].queryset = bids.objects.filter(user = self.user).order_by('price', 'amount')
+    
     delete_bid = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
-    bid_id = forms.IntegerField(label="Please Enter Bid ID")
+    bid_id = forms.ModelChoiceField(queryset=bids.objects.none(), to_field_name='id', required=True, widget=forms.Select(attrs={'class': 'form-control'}), label="Choose a Bid to delete")
+
+    class Meta:
+        model = bids
+        fields = ['id']
 
 # Settings Form
 class SettingsForm(forms.ModelForm):

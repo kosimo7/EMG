@@ -7,10 +7,10 @@ from game.models import (
 
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) # User und Profile habe 1-zu-1 Beziehung und User is Fremdschlüssel; Beim Löschen des Users wird auch Profile gelöscht
-    budget = models.IntegerField(default=0)
-    revenue = models.IntegerField(default=0)
-    profit = models.IntegerField(default=0)
-    total_cost = models.IntegerField(default=0)
+    budget = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
+    revenue = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
+    profit = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
+    total_cost = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
     joined_game = models.ForeignKey(sessions, on_delete=models.SET_NULL, to_field="name", db_column="name", blank=True, null=True)
     ready = models.BooleanField(default=False)
     
@@ -37,8 +37,8 @@ class construction(models.Model):
 class bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology")
-    price = models.PositiveIntegerField()   # €/MWh
-    amount = models.PositiveIntegerField()  # MW
+    price = models.DecimalField(decimal_places=2, max_digits=10)   # €/MWh
+    amount = models.DecimalField(decimal_places=2, max_digits=10)  # MW
 
     def __str__(self):
         return f'Bid_ID: {self.id}, User: {self.user.username}, Tech: {self.technology}, Price: {self.price}, Capacity: {self.amount}'
@@ -46,7 +46,7 @@ class bids(models.Model):
 class bids_meritorder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology")
-    price = models.PositiveIntegerField()   # €/MWh
-    amount = models.PositiveIntegerField()  # MW
+    price = models.DecimalField(decimal_places=2, max_digits=10)  # €/MWh
+    amount = models.DecimalField(decimal_places=2, max_digits=10)  # MW
 
 
