@@ -34,4 +34,5 @@ urlpatterns = [
     path('waiting_room/', user_views.waiting_room, name='users-waiting_room'),
     path('ready_room/', user_views.ready_room, name='users-ready_room'),
     path('overview/', user_views.overview, name='users-overview'),
+    path('profile/get_dynamic_content/', user_views.get_dynamic_content, name='get_dynamic_content'),
 ]
