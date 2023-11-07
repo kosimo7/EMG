@@ -21,6 +21,7 @@ class sessions(models.Model):
     name = models.CharField(max_length=30, unique=True)
     ready = models.BooleanField(default=False)
     variables = models.CharField(max_length=30, default='game_variables')
+    final = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)
@@ -47,3 +48,8 @@ class demand_cf(models.Model):
             models.UniqueConstraint(fields = ['round', 'key'], name = 'unique_set') # Beide Felder müssen als Kombination unique sein
         ]
 
+# database for backup variables
+class backup(models.Model):
+    game = models.ForeignKey(sessions, on_delete=models.CASCADE, to_field="name")
+    name = models.CharField(max_length=30)
+    value = models.DecimalField(decimal_places=2, max_digits=20, null=True)

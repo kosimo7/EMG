@@ -1,35 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- CSS -->
+<style type='text/css'>
+  body {
+    /* Padding required for fixed-top navbar */
+    padding-top: 60px; 
+  }
+  </style>
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    
+    <!-- Jquery, Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Title -->
     {% if title %}
     <title>EMG - {{ title }}</title>
     {% else %}
     <title>EMG</title>
     {% endif %}
 </head>
-<body>
+<body >
     <header class="site-header">
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
           <div class="container">
             <a class="navbar-brand mr-4" href="{% url 'game-home' %}">EMG</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarToggle">
-              <div class="navbar-nav mr-auto">
+              <!-- Navbar Left Side -->
+              <div class="navbar-nav me-auto">
                 <a class="nav-item nav-link" href="{% url 'game-home' %}">Home</a> 
                 <a class="nav-item nav-link" href="{% url 'game-about' %}">About</a>
                 <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
               </div>
               <!-- Navbar Right Side -->
-              <div class="navbar-nav"> <!-- Darstellung Abhängig vom Login Status -->
+              <div class="navbar-nav"> <!-- depended on login status -->
                 {% if user.is_authenticated %} <!-- View while logged in -->
                   {% if user.is_staff %}<!-- View while staff member -->
                   <a class="nav-item nav-link" href="{% url 'users-staff_new_game' %}">New Game</a>
@@ -52,7 +61,7 @@
           </div>
         </nav>
       </header>
-
+<!-- Alert Messages -->
 <main role="main" class="container">
   <div class="row">
     <div class="col-md-12">
@@ -63,8 +72,11 @@
           </div>
         {% endfor %}
       {% endif %}
-
-      {% block content %}{% endblock %} <!--inserts content html files-->
+      
+      <!-- Content -->
+      {% block content %}
+      <!--insert content html files-->
+      {% endblock %} 
       
     <!-- Sidebar -->
     <!-- </div>
