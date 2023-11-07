@@ -236,6 +236,7 @@ def profil(request):
         'carbon_price': carbon_price,
         'carbon_price_max': carbon_price_max,
         'player_count': player_count,
+        "datas": tech.objects.all(),
     } 
     return render(request, 'users/profile.html', context)
 
@@ -952,6 +953,7 @@ def bidding(request):
             demand = demand_cf_set.get(round = current_round).demand * player_count
             demand_forecast_plus1 = demand_cf_set.get(round = (current_round + 1)).demand * player_count
             demand_forecast_plus2 = demand_cf_set.get(round = (current_round + 2)).demand * player_count
+            carbon_price = settings.objects.get(name='carbon_price', game = joined_game).value
         elif joined_game.ready and profile.ready: # Spieler ist einem Spiel beigetreten, das Spiel ist gestartet und Spieler ist ready! für die nächste Runde
             messages.warning(request, f'Please wait for the next round to start!')
             return redirect('users-ready_room')
@@ -972,7 +974,9 @@ def bidding(request):
         "remaining_cap" : remaining_cap,
         'demand': demand,
         'demand_forecast_plus1': demand_forecast_plus1,
-        'demand_forecast_plus2': demand_forecast_plus2,        
+        'demand_forecast_plus2': demand_forecast_plus2,
+        'carbon_price': carbon_price,
+        "datas": tech.objects.all(),        
     }
     return render(request, 'users/bidding.html', context)
 

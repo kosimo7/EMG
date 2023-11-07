@@ -32,8 +32,47 @@
         </tbody>
     </table> 
 
-    <h4>Click here to view the detailed data for each generation unit and technology</h4>
-    <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
+    
+    <p class="d-inline-flex gap-1">
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Display Technology Data
+        </button>
+    </p>
+    <h4 class="d-inline-flex gap-1">Click here to view the detailed data for each generation unit and technology</h4>
+    <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                    <th scope="col">Technology</th>
+                    <th scope="col">Capacity per Unit [MW]</th>
+                    <th scope="col">Investement Cost per Unit [€]</th>
+                    <th scope="col">Build Time [t]</th>
+                    <th scope="col">Operation Time [t]</th>
+                    <th scope="col">Fixed Cost [€/Unit]</th>
+                    <th scope="col">Fuel Cost [€/MWh_el]</th>
+                    <th scope="col">Carbon Content [t/MWh_el]</th>
+                    <th scope="col">Carbon Cost [€/MWh_el]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in datas %}
+                    <tr scope="row">
+                        <td>{{ data.technology }}</td>
+                        <td>{{ data.capacity }}</td> 
+                        <td>{{ data.investment_cost }}</td> 
+                        <td>{{ data.build_time }}</td> 
+                        <td>{{ data.operation_time }}</td> 
+                        <td>{{ data.fixed_cost }}</td> 
+                        <td>{{ data.fuel_cost }}</td> 
+                        <td>{{ data.carbon_content }}</td>
+                        <td>{% multiply data.carbon_content carbon_price as carbon_cost %} {{ carbon_cost|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <h3>Total Available Capacity</h3>
     <!--Kapazitäten Kummuliert Tabelle-->
