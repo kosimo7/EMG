@@ -2,12 +2,15 @@
 {% load custom_tags %}
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% block content %}
-
 <meta http-equiv="refresh" content="10">
 
 <h1>You have successfully joined a game!</h1>
-<h1>Please wait for the Game to start.</h1>
-
-
+<br>
+<div class="d-inline-block">
+    <h1>Please wait for the Game to start.</h1>
+</div>
+<div class="d-inline-block ms-4">
+    <div class="spinner-border text-success" role="status"> </div>
+</div>
 
 {% endblock content%}

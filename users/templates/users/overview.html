@@ -3,11 +3,13 @@
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% block content %}
 
-<!-- <meta http-equiv="refresh" content="3">  -->
-
+{% if not game.final %}
 <h1>Last Round Results Overview</h1>
+{% elif game.final %}
+<h1>Final Round Results Overview</h1>
+{% endif %}
 <br>
-<h3>{{ game.name }}: Results of Round {{ last_round|floatformat }}</h3>
+<h3>{{ game.name }}: Results of Round {{ last_round|floatformat:0 }}</h3>
 
     <!-- Overview -->
     <table class="table table-striped">
@@ -25,13 +27,13 @@
         </thead>
         <tbody>
             <tr scope="row">
-                <td>{{ clearing_price }}€</td>
-                <td>{{ carbon_price }}€</td>
+                <td>{{ clearing_price }} €</td>
+                <td>{{ carbon_price }} €</td>
                 {% if not user.is_staff %}
-                <td>{{ profile.revenue }}€</td>
-                <td>{{ profile.total_cost }}€</td>
-                <td>{% subtract profile.revenue profile.total_cost as round_profit %} {{ round_profit }}€</td>
-                <td>{{ profile.profit }}€</td>
+                <td>{{ profile.revenue }} €</td>
+                <td>{{ profile.total_cost }} €</td>
+                <td>{% subtract profile.revenue profile.total_cost as round_profit %} {{ round_profit }} €</td>
+                <td>{{ profile.profit }} €</td>
                 {% endif %}
             </tr>
         </tbody>
@@ -43,7 +45,6 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th scope="col">ID</th>
                 <th scope="col">Player</th>
                 <th scope="col">Price €/MWh</th>
                 <th scope="col">Amount MW</th>
@@ -53,7 +54,6 @@
         <tbody>
             {% for bid in accepted_bids %}
             <tr scope="row">
-                <td>{{ bid.id }}</td>
                 <td>{{ bid.user.username }}</td>
                 <td>{{ bid.price }} €/MWh</td>
                 <td>{{ bid.amount }} MW</td>
@@ -64,17 +64,51 @@
     </table>    
     {% endif %}
 
+    <!-- Market Overview -->
+    <h3>Market Details</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Demand Round {{ last_round|floatformat:0 }}</th>
+                <th scope="col">Total Capacity installed (all technologies)</th>
+                <th scope="col">Total Capacity offered (all technologies)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr scope="row">
+                <td>{{ demand_minus_one }} MWh</td>
+                <td>{{ total_installed_capacity }} MW</td>
+                <td>{{ total_bid_capacity }} MW</td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- Technology Overview -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Technology</th>
+                <th scope="col">Total Capacity installed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in total_tech_cap.items %}
+            <tr scope="row">
+                <td>{{ key }}</td>
+                <td>{{ value|floatformat:0 }} MWh</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     <!-- Player Ranking -->
-    <h3>Player Ranking by Total Profit</h3>
+    <h3>{% if game.final %}Final{% endif %} Player Ranking by Total Profit</h3>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th scope="col">Rank</th>
                 <th scope="col">Name</th>
                 <th scope="col">Revenue (last round)</th>
-                {% if user.is_staff %}
                 <th scope="col">Total Cost (last round)</th>
-                {% endif %}
                 <th scope="col">Profit (total)</th>
             </tr>
         </thead>
@@ -83,11 +117,9 @@
             <tr scope="row">
                 <td>{{ forloop.counter }}</td>
                 <td>{{ p.user.username }}</td>
-                <td>{{ p.revenue }}€</td>
-                {% if user.is_staff %}
-                <td>{{ p.total_cost }}€</td>
-                {% endif %}
-                <td>{{ p.profit }}€</td>
+                <td>{{ p.revenue }} €</td>
+                <td>{{ p.total_cost }} €</td>
+                <td>{{ p.profit }} €</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -121,7 +153,9 @@
     {% endif %}
 
 <br>
+{% if not game.final %}
 <h3>Proceed to Round {{ round|floatformat }}</h3>
 <a  href="{% url 'users-profile' %}" class="btn btn-primary" role="button">Continue</a>
+{% endif %}
 
 {% endblock content%}

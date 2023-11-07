@@ -2,12 +2,14 @@
 {% load custom_tags %}
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% block content %}
-
 <meta http-equiv="refresh" content="10">
 
-<br>
-<h1>Please wait for the next round to start!</h1> <div class="spinner-border"></div>
-
+<div class="d-inline-block">
+    <h1>Please wait for the next round to start!</h1>
+</div>
+<div class="d-inline-block ms-4">
+    <div class="spinner-border text-success" role="status"> </div>
+</div>
 
 
 {% endblock content%}

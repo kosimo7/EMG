@@ -5,7 +5,7 @@
     <h1>{{ user.username }}'s Profile</h1>
     <h1>Gamemaster Control Center</h1>
     
-    <h3>Currently hosting {{ hosted_game }}</h3><br>
+    <h3>Currently hosting: {{ hosted_game }}</h3><br>
     
     <!-- Start/End Game Form -->
     <div style="float:left; margin-right:100px;">
@@ -27,7 +27,7 @@
 
     <!-- Delete Game Form -->
     {% if not hosted_game.ready %}
-        <div style="float:middle">
+        <div>
             <form method="POST">
                 <fieldset class="form-group">
                 {% csrf_token %}
@@ -41,28 +41,49 @@
         </div>
     {% endif %}
     <br>
-    <h3 style="clear:both">Round: {{ round|floatformat }}</h3>
+    {% if not hosted_game.final %} 
+    <h3 style="clear:both"><strong>Round: {{ round|floatformat }} of {{ max_round|floatformat }}</strong></h3>
+    {% endif %} 
 
-    <!-- Next Round Form -->
-    {% if hosted_game.ready %}
-    <div style="clear:both">
-        <form method="POST">
-            <fieldset class="form-group">
-            {% csrf_token %}
-                <legend class="border-bottom mb-4">End Current Round, Initialize Price Setting and Start the next Round</legend>
-                {{ form_nextround|crispy }} 
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Start Next Round</button>
-            </div>
-        </form> 
-    </div>
-    {% endif %}
-    <br>
+    {% if round != max_round %}   
+        <!-- Next Round Form -->
+        {% if hosted_game.ready and not hosted_game.final %}
+        <div style="clear:both">
+            <form method="POST">
+                <fieldset class="form-group">
+                {% csrf_token %}
+                    <legend class="border-bottom mb-4">End Current Round, Initialize Price Setting and Start the next Round</legend><br>
+                    {{ form_nextround|crispy }} 
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Start Next Round</button>
+                </div>
+            </form> 
+        </div>
+        {% endif %}
+        <br>
+    {% elif round == max_round %}   
+        <!-- Final Round Form -->
+        {% if hosted_game.ready and not hosted_game.final %}
+        <div style="clear:both">
+            <form method="POST">
+                <fieldset class="form-group">
+                {% csrf_token %}
+                    <legend class="border-bottom mb-4">End the final Round, Initialize Price Setting and redirect users to the Final Results Screen</legend><br>
+                    {{ form_finalround|crispy }} 
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="fnlrndbtn" >Start Final Round</button>
+                </div>
+            </form> 
+        </div>
+        {% endif %}
+        <br>
+    {% endif %}   
 
     <!-- Market Overview -->
-    <h4>Demand and Weather forecast</h4>
-    <table class="table table-striped">
+    <h4 style="clear:both">Demand and Weather forecast</h4>
+    <table class="table table-striped" >
         <thead>
             <tr>
             <th scope="col">Demand (current round)</th>
@@ -129,7 +150,7 @@
                 {{ form_settings|crispy }} 
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="setngsbtn">Confirm Settings</button>
+                <button class="btn btn-outline-info mb-4" type="submit" onclick="return confirm('Are you sure?');" name="setngsbtn">Confirm Settings</button>
             </div>
         </form>
     </div>
@@ -153,125 +174,169 @@
 
     <h5>Click here to view the detailed data for each generation technology, including costs associated with each unit</h5>
     <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
-
-    <h3>Joined Players</h3>
-    <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh List</a>
-    <!--Profiles Table-->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Rank</th>
-                <th scope="col">User ID</th>
-                <th scope="col">Username</th>
-                <th scope="col">Budget</th>
-                <th scope="col">Revenue</th>
-                <th scope="col">Total Cost</th>
-                <th scope="col">Profit (total)</th>
-                <th scope="col">Ready for next round?</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in profiles %}
-            <tr scope="row">
-                <td>{{ forloop.counter }}</td>
-                <td>{{ p.user_id}}</td>
-                <td>{{ p.user.username}}</td>
-                <td>{{ p.budget}}€</td>
-                <td>{{ p.revenue}}€</td> 
-                <td>{{ p.total_cost}}€</td> 
-                <td>{{ p.profit}}€</td>
-                <td>{{ p.ready}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- Remove Player Form -->
-    <div>
-        <form method="POST">
-            <fieldset class="form-group">
-            {% csrf_token %}
-                <legend class="border-bottom mb-4">Remove a Player from the Game</legend>
-                {{ form_removeplayer|crispy }} 
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="setngsbtn">Confirm Removal</button>
+    <br>
+    <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh all Lists</a>
+    <div class="accordion accordion-flush" id="accordionPlayers">
+        <!-- 1 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <h4><strong>Joined Players</strong></h4>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    
+                    <!--Profiles Table-->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Budget</th>
+                                <th scope="col">Revenue</th>
+                                <th scope="col">Total Cost</th>
+                                <th scope="col">Profit (total)</th>
+                                <th scope="col">Ready for next round?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in profiles %}
+                            <tr scope="row">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ p.user_id}}</td>
+                                <td>{{ p.user.username}}</td>
+                                <td>{{ p.budget}}€</td>
+                                <td>{{ p.revenue}}€</td> 
+                                <td>{{ p.total_cost}}€</td> 
+                                <td>{{ p.profit}}€</td>
+                                <td>{{ p.ready}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Remove Player Form -->
+                    <div>
+                        <form method="POST">
+                            <fieldset class="form-group">
+                            {% csrf_token %}
+                                <legend class="border-bottom mb-4">Remove a Player from the Game</legend>
+                                {{ form_removeplayer|crispy }} 
+                            </fieldset>
+                            <div class="form-group">
+                                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="setngsbtn">Confirm Removal</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
+        <!-- 2 -->
+        <div class="accordion-item">
+            <h2 lass="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                    <h4><strong>All Generation Systems</strong></h4>
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <!--Kraftwerkspark Tabelle-->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Technology</th>
+                                <th scope="col">Verbleibende Laufzeit in Runden</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gen in generation_systems %}
+                            <tr scope="row">
+                                <td>{{ gen.user_id}}</td>
+                                <td>{{ gen.user.username}}</td>
+                                <td>{{ gen.id}}</td>
+                                <td>{{ gen.technology}}</td> 
+                                <td>{{ gen.until_decommissioned}}</td> 
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- 3 -->
+        <div class="accordion-item">
+            <h2 lass="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                    <h4><strong>Construction Orders</strong></h4>
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <!--Kraftwerkspark Tabelle-->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Technology</th>
+                                <th scope="col">Verbleibende Bauzeit in Runden</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for con in constructions %}
+                            <tr scope="row">
+                                <td>{{ con.user_id}}</td>
+                                <td>{{ con.user.username}}</td>
+                                <td>{{ con.id}}</td>
+                                <td>{{ con.technology}}</td> 
+                                <td>{{ con.until_constructed}}</td> 
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- 4 -->
+        <div class="accordion-item">
+            <h2 lass="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                    <h4><strong>Bids</strong></h4>
+                </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    <!-- Bids -->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Technology</th>
+                                <th scope="col">Price €/MWh</th>
+                                <th scope="col">Capacity MW</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in bids %}
+                            <tr scope="row">
+                                <td>{{ b.user_id }}</td>
+                                <td>{{ b.user.username }}</td>
+                                <td>{{ b.technology }}</td>
+                                <td>{{ b.price }}</td>
+                                <td>{{ b.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h2>All Generation Systems</h2>
-    <!--Kraftwerkspark Tabelle-->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">User ID</th>
-                <th scope="col">Username</th>
-                <th scope="col">ID</th>
-                <th scope="col">Technology</th>
-                <th scope="col">Verbleibende Laufzeit in Runden</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for gen in generation_systems %}
-            <tr scope="row">
-                <td>{{ gen.user_id}}</td>
-                <td>{{ gen.user.username}}</td>
-                <td>{{ gen.id}}</td>
-                <td>{{ gen.technology}}</td> 
-                <td>{{ gen.until_decommissioned}}</td> 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h2>Construction Orders</h2>
-    <!--Kraftwerkspark Tabelle-->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">User ID</th>
-                <th scope="col">Username</th>
-                <th scope="col">ID</th>
-                <th scope="col">Technology</th>
-                <th scope="col">Verbleibende Bauzeit in Runden</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for con in constructions %}
-            <tr scope="row">
-                <td>{{ con.user_id}}</td>
-                <td>{{ con.user.username}}</td>
-                <td>{{ con.id}}</td>
-                <td>{{ con.technology}}</td> 
-                <td>{{ con.until_constructed}}</td> 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-        <!-- Bids -->
-        <h2>Bids</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">User ID</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Technology</th>
-                    <th scope="col">Price €/MWh</th>
-                    <th scope="col">Capacity MW</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for b in bids %}
-                <tr scope="row">
-                    <td>{{ b.user_id }}</td>
-                    <td>{{ b.user.username }}</td>
-                    <td>{{ b.technology }}</td>
-                    <td>{{ b.price }}</td>
-                    <td>{{ b.amount }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>  
 {% endblock content%}

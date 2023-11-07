@@ -23,7 +23,7 @@ class UserRegisterForm(UserCreationForm): # RegisterForm basiert auf Standard Us
 # Construction Form
 class ConstructionForm(forms.ModelForm): # Formular basierend auf der construction-Datenbank
     add_generator = forms.BooleanField(widget=forms.HiddenInput, initial=True) # Versteckte Variable
-    amount = forms.IntegerField(initial=1, label='How many units?', required=True)
+    amount = forms.IntegerField(initial=1, label='How many units?', required=True, min_value=1)
     
     class Meta:
         model = construction             # zugrundliegende Datenbank
@@ -35,11 +35,13 @@ class ConstructionForm(forms.ModelForm): # Formular basierend auf der constructi
 # Decomission Form
 class DecommissionForm(forms.Form): # Formular basierend auf der generation_system-Datenbank
     delete_generator = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
-    generator_id = forms.IntegerField(label="Please Enter Generator ID")
+    generator_id = forms.IntegerField(label="Please Enter Generator ID", min_value=0)
 
 # Bidding Form
 class BiddingForm(forms.ModelForm):
     submit_bid = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
+    price = forms.DecimalField(min_value=0, decimal_places=2, max_digits=10)
+    amount = forms.DecimalField(min_value=0, decimal_places=2, max_digits=10)
 
     class Meta:
         model = bids
@@ -91,6 +93,11 @@ class SettingsForm(forms.ModelForm):
 # Next Round Form
 class NextRoundForm(forms.Form):
     next_round = forms.BooleanField(widget=forms.HiddenInput, initial=True)
+    confirm = forms.BooleanField(initial=False, required=True, label='Confirm')
+
+# Initialize final Round
+class FinalRoundForm(forms.Form):
+    final_round = forms.BooleanField(widget=forms.HiddenInput, initial=True)
     confirm = forms.BooleanField(initial=False, required=True, label='Confirm')
 
 # New Game Session Form

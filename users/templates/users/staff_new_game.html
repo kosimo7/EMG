@@ -28,7 +28,7 @@
     <!-- Host Game Form -->
     <div>
         <form method="POST">
-            <fieldset class="form-group">
+            <fieldset class="form-group mb-4">
             {% csrf_token %}
                 <legend class="border-bottom mb-4">Host Game</legend>
                 {{ form_hostgame|crispy }} 
@@ -42,7 +42,7 @@
     <!-- Create New Game Form -->
     <div>
         <form method="POST">
-            <fieldset class="form-group">
+            <fieldset class="form-group mb-4 mt-4">
             {% csrf_token %}
                 <legend class="border-bottom mb-4">Create a New Game</legend>
                 {{ form_newgame|crispy }} 

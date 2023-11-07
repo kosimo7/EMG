@@ -5,6 +5,7 @@
 
 <h2>Please join a Game from the list below and wait for instructions</h2>
 <h3>You can only enter a game if it has not already started</h3>
+<br>
 <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh List</a>
     <!--Games Tabelle-->
     <table class="table table-striped">
@@ -29,9 +30,9 @@
     <!-- Join Game Form -->
     <div>
         <form method="POST">
-            <fieldset class="form-group">
+            <fieldset class="form-group mb-4">
             {% csrf_token %}
-                <!-- <legend class="border-bottom mb-4">Join Game</legend> -->
+                <legend class="border-bottom mb-4"></legend>
                 {{ form_joingame|crispy }} 
             </fieldset>
             <div class="form-group">

@@ -1,7 +1,10 @@
 {% extends "game/base.html" %}
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% load custom_tags %}
+{% load static %}
 {% block content %}
+<!-- import jQuery -->
+<!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>  -->
 
 <h2>Step Three: Bidding</h2>
 <h4>
@@ -46,23 +49,97 @@
             {% for key, value in capsum.items %} 
             <tr scope="row">
                 <td>{{ key }}</td>
-                <td>{{ value }}</td> <!-- |floatformat rundet die Zahlen für bessere Darstellung -->
-                <td>{{ remaining_cap|dict_key:key }}</td>
+                <td>{{ value }} MW</td>
+                <td>{{ remaining_cap|dict_key:key }} MW</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     <br>
 
+
+    <legend class="border-bottom mb-4">
+        Place Bid: Choose a generation technology and enter the price and the capacity. <br>
+    </legend>
+    <!-- Select Technology Image Buttons -->
+    <div class="button-container d-inline-block me-2" id="select-button-coal">
+        <button class="btn btn-md btn-outline-secondary">
+            <img src="{% static '/images/coal.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-wind">
+        <button class="btn btn-md btn-outline-secondary">
+            <img src="{% static '/images/wind.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-solar">
+        <button class="btn btn-md btn-outline-secondary">
+            <img src="{% static '/images/solar.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-nuclear">
+        <button class="btn btn-md btn-outline-secondary">
+            <img src="{% static '/images/nuclear.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-ccgt">
+        <button class="btn btn-md btn-outline-secondary">
+            <img src="{% static '/images/ccgt.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+
+    <!-- Select Technology JS -->
+    <script>
+        $(document).ready(function () {
+            $("#select-button-coal").on("click", function () {
+                var selectedValue = "Coal"; // Replace with the desired value
+                // Update the value of the ModelChoiceField
+                $("#id_technology").val(selectedValue);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#select-button-wind").on("click", function () {
+                var selectedValue = "Wind"; // Replace with the desired value
+                // Update the value of the ModelChoiceField
+                $("#id_technology").val(selectedValue);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#select-button-solar").on("click", function () {
+                var selectedValue = "Solar"; // Replace with the desired value
+                // Update the value of the ModelChoiceField
+                $("#id_technology").val(selectedValue);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#select-button-nuclear").on("click", function () {
+                var selectedValue = "Nuclear"; // Replace with the desired value
+                // Update the value of the ModelChoiceField
+                $("#id_technology").val(selectedValue);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#select-button-ccgt").on("click", function () {
+                var selectedValue = "CCGT"; // Replace with the desired value
+                // Update the value of the ModelChoiceField
+                $("#id_technology").val(selectedValue);
+            });
+        });
+    </script>
+
     <!-- Formular Gebotsabgabe -->
     <div>
         <form method="POST">
             <fieldset class="form-group">
-            {% csrf_token %}
-                <legend class="border-bottom mb-4">
-                    Place Bid: Choose a generation technology and enter the price and the capacity. <br>
-                    
-                </legend>
+                {% csrf_token %}
                 {{ form_bidding|crispy }} 
             </fieldset>
             <div class="form-group">
@@ -88,8 +165,8 @@
             <tr scope="row">
                 <td>{{ b.id}}</td>
                 <td>{{ b.technology}}</td>
-                <td>{{ b.price}}</td>  
-                <td>{{ b.amount}}</td> 
+                <td>{{ b.price}} €/MWh</td>  
+                <td>{{ b.amount}} MW</td> 
             </tr>
             {% endfor %}
         </tbody>
@@ -111,7 +188,7 @@
     </div>
 
     <br>
-    <h2>Step Four: Ready!</h2>
+    <h2>Step Four: Ready up!</h2>
     <!-- Ready for next Round -->
     <div style="clear:both">
         <form method="POST" >
@@ -123,7 +200,7 @@
                 {{ form_playerready|crispy }} 
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not make anymore actions until the next round!');" name="constructbtn">I am Ready!</button>
+                <button class="btn btn-outline-info mt-2" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not make anymore actions until the next round!');" name="constructbtn">I am Ready!</button>
             </div>
         </form>
     </div>
