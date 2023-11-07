@@ -32,11 +32,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Static Files
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+# Static Root
+# STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static/"),)
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

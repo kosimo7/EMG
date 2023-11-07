@@ -27,7 +27,6 @@ urlpatterns = [
     path('profile/', user_views.profil, name='users-profile'),
     path('staff_profile/', user_views.staff_profil, name='users-staff_profile'),
     path('', include('game.urls')), # weil der path hier leer ist, wird diese App zur homepage
-    path('construction_order/', user_views.construction_order, name='users-construction_order'),
     path('bidding/', user_views.bidding, name='users-bidding'),
     path('staff_new_game/', user_views.staff_new_game, name='users-staff_new_game'),
     path('join_game/', user_views.join_game, name='users-join_game'),
