@@ -19,8 +19,8 @@ from .forms import (
     DeleteGameSessionForm,
     PlayerReadyForm,
     RemovePlayerForm,
-    ExportForm, 
-    FinalRoundForm, 
+    ExportForm,
+    EnforceReadyForm,
     )
 from .models import ( 
     generation_system, # importiert Kraftwerkspark
@@ -61,20 +61,8 @@ def register(request):
 # Create a Player Profile for each new registered User
 @receiver(post_save, sender=User)
 def user_created_handler(sender, instance, created,*args,**kwargs):
-    # techlist = list(tech.objects.all().values_list('technology', flat=True))  #get all technologies and convert to list
     if created:
-        # for tech_var in techlist: #for each technology create specified default amount for new user
-        #     tech_var = tech.objects.filter(technology=tech_var).first()
-        #     amount = list(tech.objects.filter(technology=tech_var).values_list('default_amount', flat=True))
-        #     until = list(tech.objects.filter(technology=tech_var).values_list('operation_time', flat=True))
-        #     cap = list(tech.objects.filter(technology=tech_var).values_list('capacity', flat=True))
-        #     for i in range(amount[0]):
-        #         generation_system(user=instance, technology=tech_var, capacity=cap[0], until_decommissioned=until[0]).save() #Datenbankeintrag für Kraftwerkspark
-        # Create player profile
-        Profile(user=instance, budget=0, revenue=0, profit=0, total_cost=0).save()             #Datenbankeintrag für Profil/Budget
-    # if instance.is_staff: # wenn ein User zum Spielleiter(Staff) gemacht wird, werden alle seine Kraftwerke+Spielerprofil gelöscht (er spielt nicht mit) --> kann evtl. später direkt bei der Berechnung eingefügt werden, dass Staff nicht berücksichtigt wird
-    #     generation_system.objects.filter(user=instance).delete()
-        # Profile.objects.filter(user=instance).delete()
+        Profile(user=instance, budget=0, revenue=0, profit=0, total_cost=0).save()       
 
 # Profile Page view
 @login_required # decorator, only logged in users can access profile page
@@ -269,7 +257,8 @@ def staff_profil(request):
                 if form_n.is_valid() and all(i for i in joined_players.values_list('ready', flat=True)): # Test, ob alle Spieler 'Ready' für die nächste Runde sind
                     # Variables
                     demand_cf_set = demand_cf.objects.filter(key = hosted_game.variables)
-                    current_round = settings.objects.get(name='round', game = hosted_game) # Get current Round Number   
+                    current_round = settings.objects.get(name='round', game = hosted_game) # Get current Round Number
+                    max_round = settings.objects.get(name='max_round', game = hosted_game)
                     # Market Clearing (working)
                     player_count = len(joined_players.select_related('user').filter(user_id__in = not_staff).values_list('id', flat=True))
                     current_demand = (demand_cf_set.get(round = current_round.value).demand * player_count)
@@ -406,9 +395,6 @@ def staff_profil(request):
                         profile = Profile.objects.get(id=i) # Current Profile
                         profile.ready = not profile.ready
                         profile.save()
-                    # Update Round Counter (working)
-                    current_round.value += 1                           # Round+1
-                    current_round.save()
                     # Reset Backup Variables
                     backup.objects.filter(game = hosted_game).delete()
                     # Save Backup Variables
@@ -437,7 +423,7 @@ def staff_profil(request):
                                 value = 0, 
                                 game = hosted_game
                                 ).save()
-                    # Save Bids for Overview
+                    # Save Bids for Overview (Merit Order)
                     bids_meritorder.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete() # Reset
                     bid_sum = 0
                     for bid in ordered_bids:
@@ -477,6 +463,17 @@ def staff_profil(request):
                     else:
                         new_carbon_price.value = 0
                     new_carbon_price.save()
+                    # Flip Game Final state, if the the game reaches the last round
+                    if not hosted_game.final and current_round.value == max_round.value:
+                        # switch final to true
+                        hosted_game.final = not hosted_game.final
+                        hosted_game.save()
+                        # Final Round Redirect
+                        messages.success(request, f'Final Round Initialized!')
+                        return redirect('users-overview')
+                    # Update Round Counter
+                    current_round.value += 1
+                    current_round.save()
                     # Redirect
                     messages.success(request, f'Next Round Initialized!')
                     return redirect('users-overview')
@@ -492,7 +489,7 @@ def staff_profil(request):
                     if not hosted_game.ready: # Wenn noch nicht getartet, starte das Spiel
                         hosted_game.ready = not hosted_game.ready 
                         hosted_game.save()
-                        # Flip Game Final state if final=True
+                        # Flip Game Final state to false
                         if hosted_game.final:
                             hosted_game.final = not hosted_game.final
                             hosted_game.save()
@@ -529,232 +526,6 @@ def staff_profil(request):
                             p.save()
                         messages.success(request, f'Game Ended!')
                         return redirect('users-staff_profile')
-        # Initialize the final round and lock players at the Results Screen
-        form_f = FinalRoundForm()
-        if 'final_round' in request.POST:
-            if request.method == "POST":
-                form_f = FinalRoundForm(request.POST)
-                if form_f.is_valid() and all(i for i in joined_players.values_list('ready', flat=True)): # Test, ob alle Spieler 'Ready' für die nächste Runde sind
-                    # Variables
-                    demand_cf_set = demand_cf.objects.filter(key = hosted_game.variables)
-                    current_round = settings.objects.get(name='round', game = hosted_game) # Get current Round Number   
-                    # Market Clearing (working)
-                    player_count = len(joined_players.select_related('user').filter(user_id__in = not_staff).values_list('id', flat=True))
-                    current_demand = (demand_cf_set.get(round = current_round.value).demand * player_count)
-                    all_bids = list(bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).values_list('id', flat=True).order_by('price'))
-                    ordered_bids = bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).order_by('price') # all bids ordered by price
-                    bidsum = 0
-                    clearing_price = 0.0
-                    supply_larger_than_demand = False
-                    for b in all_bids:
-                        bid = ordered_bids.get(id=b)
-                        if (bidsum + bid.amount) < current_demand:
-                            bidsum += bid.amount
-                            clearing_price = bid.price
-                        elif (bidsum + bid.amount) == current_demand:
-                            clearing_price = bid.price
-                            break
-                        elif (bidsum + bid.amount) > current_demand:
-                            clearing_price = bid.price
-                            supply_larger_than_demand = not supply_larger_than_demand
-                            break
-                    marginal_bids = list(bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).values_list('price', flat=True)).count(clearing_price) # Anzahl der Angebote zum Gleichgewichtspreis
-                    # Save Clearing Price into DB
-                    if settings.objects.filter(name = 'clearing_price', game_id = hosted_game).exists():
-                        cp = settings.objects.get(name = 'clearing_price', game_id = hosted_game)
-                        cp.value = clearing_price
-                        cp.save()
-                    else:
-                        settings(name = 'clearing_price', value = clearing_price, game_id = hosted_game).save()
-                    # Reset Carbon Emissions
-                    total_emissions =  0 
-                    # Reset Revenue & Total Cost (diese Werte sind nicht kumuliert)
-                    for player in joined_players:
-                        player.revenue = 0 
-                        player.total_cost = 0
-                        player.save()
-                    # Update Budgets (Revenue, Fuel Cost)
-                    for b in all_bids:
-                        bid = ordered_bids.get(id=b)
-                        user = bid.user.id
-                        profile = Profile.objects.get(user_id=user)
-                        if bid.price < clearing_price:
-                            fuel_cost = tech.objects.get(technology=bid.technology).fuel_cost
-                            carbon_price = settings.objects.get(name='carbon_price', game = hosted_game).value
-                            carbon_content = tech.objects.get(technology=bid.technology).carbon_content
-                            # Profit Calculation
-                            revenue = (clearing_price * bid.amount)
-                            total_cost = (fuel_cost * bid.amount) + (carbon_price * carbon_content * bid.amount)
-                            profit = revenue - total_cost
-                            profile.budget += profit
-                            profile.revenue += revenue
-                            profile.total_cost += total_cost
-                            profile.profit += profit # kumuliert
-                            profile.save()
-                            # Emissions
-                            total_emissions += (bid.amount * carbon_content)
-                        elif bid.price == clearing_price:
-                            if supply_larger_than_demand:
-                                # Wenn das Angebot größer als die Nachfrage war:
-                                # Wenn mehrere Spieler zum Gleichgewichtspreis anbieten UND das Angebot die Nachfrage übersteigt wird die verbleiden Nachfrage in gleichen Teilen aufgeteilt
-                                fuel_cost = tech.objects.get(technology=bid.technology).fuel_cost
-                                carbon_price = settings.objects.get(name='carbon_price', game = hosted_game).value
-                                carbon_content = tech.objects.get(technology=bid.technology).carbon_content
-                                # Profit Calculation
-                                remaining_demand_per_player = (current_demand - bidsum) / marginal_bids
-                                revenue = (clearing_price * remaining_demand_per_player)
-                                total_cost = (fuel_cost * remaining_demand_per_player) + (carbon_price * carbon_content * remaining_demand_per_player)
-                                profit = revenue - total_cost
-                                profile.budget += profit
-                                profile.revenue += revenue
-                                profile.total_cost += total_cost
-                                profile.profit += profit # kumuliert
-                                profile.save()
-                                # Emissions
-                                total_emissions += (remaining_demand_per_player * carbon_content)
-                            else: 
-                                # Wenn das Angebot niedriger als die Nachfrage war:
-                                fuel_cost = tech.objects.get(technology=bid.technology).fuel_cost
-                                carbon_price = settings.objects.get(name='carbon_price', game = hosted_game).value
-                                carbon_content = tech.objects.get(technology=bid.technology).carbon_content
-                                # Profit Calculation
-                                revenue = (clearing_price * bid.amount)
-                                total_cost = (fuel_cost * bid.amount) + (carbon_price * carbon_content * bid.amount)
-                                profit = revenue - total_cost
-                                profile.budget += profit
-                                profile.revenue += revenue
-                                profile.total_cost += total_cost
-                                profile.profit += profit # kumuliert
-                                profile.save()
-                                # Emissions
-                                total_emissions += (bid.amount * carbon_content)
-                    # Update Budgets (fixed cost) (working)
-                    all_profiles = list(Profile.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).values_list('id', flat=True)) # List of all Profile ID's
-                    for i in all_profiles:  # for each Profile
-                        profile = Profile.objects.get(id=i) # Current Profile
-                        generators = generation_system.objects.filter(user_id=profile.user.id).values_list('technology', flat=True) # List of all Generators of current Profile
-                        total_fixed_cost = 0 # initialize/reset variable
-                        for g in generators: # for each Generator
-                            fixed_cost = tech.objects.get(technology=g).fixed_cost
-                            total_fixed_cost += fixed_cost
-                        profile.budget -= total_fixed_cost
-                        profile.total_cost += total_fixed_cost
-                        profile.profit -= total_fixed_cost
-                        # check if budget would be negativ
-                        if profile.budget < 0:
-                            profile.budget = 0
-                        profile.save()
-                    # Update Generation Systems (working)
-                    all_generators = list(generation_system.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).values_list('id', flat=True))
-                    for i in all_generators:
-                        generator = generation_system.objects.get(id=i)
-                        if generator.until_decommissioned > 1:
-                            generator.until_decommissioned -= 1
-                            generator.save()
-                        else:
-                            generator.delete()
-                    # Update Construction Orders (working)
-                    all_orders = list(construction.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).values_list('id', flat=True))
-                    for i in all_orders:
-                        order = construction.objects.get(id=i)
-                        if order.until_constructed > 1: 
-                            order.until_constructed -= 1 # Verbleibende Bauzeit anpassen
-                            order.save()
-                        else: # Wenn Bauzeit abgelaufen, wird der Generator dem Kraftwerkspark hinzugefügt
-                            new_generator = generation_system(
-                                technology = order.technology, 
-                                user_id = order.user.id, 
-                                until_decommissioned = tech.objects.values_list('operation_time', flat=True).get(technology=order.technology),
-                                capacity = tech.objects.values_list('capacity', flat=True).get(technology=order.technology)
-                                )
-                            new_generator.save()
-                            order.delete()
-                    # Flip Ready State of all Players back to False to enable redirect to users-profile
-                    for i in all_profiles:
-                        profile = Profile.objects.get(id=i) # Current Profile
-                        profile.ready = not profile.ready
-                        profile.save()
-                    # Update Round Counter (working)
-                    current_round.value += 1                           # Round+1
-                    current_round.save()
-                    # Reset Backup Variables
-                    backup.objects.filter(game = hosted_game).delete()
-                    # Save Backup Variables
-                    total_bid_capacity = ordered_bids.aggregate(Sum('amount'))
-                    if total_bid_capacity['amount__sum'] is not None:
-                        backup(name = 'total_bid_capacity', value = total_bid_capacity['amount__sum'], game = hosted_game).save()
-                    elif total_bid_capacity['amount__sum'] is None:
-                        backup(name = 'total_bid_capacity', value = 0, game = hosted_game).save()
-                    all_gens = generation_system.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True))
-                    total_installed_capacity = all_gens.aggregate(Sum('capacity'))
-                    if total_installed_capacity['capacity__sum'] is not None:
-                        backup(name = 'total_installed_capacity', value = total_installed_capacity['capacity__sum'], game = hosted_game).save()
-                    elif total_installed_capacity['capacity__sum'] is None:
-                        backup(name = 'total_installed_capacity', value = 0, game = hosted_game).save()
-                    for t in tech.objects.all().values_list('technology', flat=True):
-                        temp_var = all_gens.filter(technology = t).aggregate(Sum('capacity'))
-                        if temp_var['capacity__sum'] is not None:
-                            backup(
-                                name = f"total_installed_{t}", 
-                                value = temp_var['capacity__sum'], 
-                                game = hosted_game
-                                ).save()
-                        elif temp_var['capacity__sum'] is None:
-                            backup(
-                                name = f"total_installed_{t}", 
-                                value = 0, 
-                                game = hosted_game
-                                ).save()
-                    # Save Bids for Overview
-                    bids_meritorder.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete() # Reset
-                    bid_sum = 0
-                    for bid in ordered_bids:
-                        if bid.price < clearing_price:
-                            bid_sum += bid.amount
-                            if  bid_sum < current_demand:
-                                bids_meritorder(
-                                    user_id = bid.user_id,
-                                    technology = bid.technology,
-                                    price = bid.price,
-                                    amount = bid.amount
-                                ).save()
-                        elif bid.price == clearing_price:
-                            if supply_larger_than_demand:
-                                remaining_demand_pp = (current_demand - bid_sum) / marginal_bids
-                                bids_meritorder(
-                                    user_id = bid.user_id,
-                                    technology = bid.technology,
-                                    price = bid.price,
-                                    amount = remaining_demand_pp
-                                ).save()
-                            elif not supply_larger_than_demand:
-                                bids_meritorder(
-                                    user_id = bid.user_id,
-                                    technology = bid.technology,
-                                    price = bid.price,
-                                    amount = bid.amount
-                                ).save()
-                    # Reset all Players Bids
-                    ordered_bids.delete()
-                    # Update Carbon Price
-                    carbon_price_max = settings.objects.get(name = 'carbon_price_max', game = hosted_game).value # €/t
-                    total_emissions_max = settings.objects.get(name = 'total_emissions_max', game = hosted_game).value # tC02
-                    new_carbon_price = settings.objects.get(name = 'carbon_price', game = hosted_game)
-                    if total_emissions_max > 0:
-                        new_carbon_price.value = (total_emissions / total_emissions_max) * carbon_price_max
-                    else:
-                        new_carbon_price.value = 0
-                    new_carbon_price.save()
-                    # Flip Game Final state
-                    if not hosted_game.final:
-                        hosted_game.final = not hosted_game.final
-                        hosted_game.save()
-                    # Redirect
-                    messages.success(request, f'Final Round Initialized!')
-                    return redirect('users-overview')
-                else:
-                    messages.warning(request, f'Not all Players are ready!')
-                    form_f = FinalRoundForm()        
         # Delete the Game
         form_dg = DeleteGameSessionForm()
         if 'delete_game' in request.POST:
@@ -790,7 +561,23 @@ def staff_profil(request):
                 else:
                     messages.warning(request, f'Player not found!')
                     form_rp = RemovePlayerForm()
-        # Export Data
+        # Enforce Ready Form
+        form_enforce = EnforceReadyForm()
+        if 'enforce_ready' in request.POST:
+            if request.method == "POST":
+                form_enforce = EnforceReadyForm(request.POST)
+                if form_enforce.is_valid():
+                    # Enforce 'Ready' on all joined Players
+                    for p in joined_players:
+                        if not p.ready:
+                            p.ready = not p.ready
+                            p.save()
+                    messages.success(request, f'All Players are now Ready!')
+                    return redirect('users-staff_profile')
+                else:
+                    messages.warning(request, f'Something went wrong')
+                    form_rp = RemovePlayerForm()
+        # Export Data as XLSX
         form_export = ExportForm()
         if 'export_data' in request.POST:
             if request.method == "POST":
@@ -819,11 +606,10 @@ def staff_profil(request):
                     # Save the ExcelWriter object and return the response
                     writer.close()
                     return response
-        else:
-            form_export = ExportForm()
         # Market Data
         demand_cf_set = demand_cf.objects.filter(key = hosted_game.variables)
         current_round = settings.objects.get(name='round', game = hosted_game).value
+        max_round = settings.objects.get(name='max_round', game = hosted_game).value  
         player_count = len(joined_players.select_related('user').filter(user_id__in = not_staff).values_list('id', flat=True))
         demand = demand_cf_set.get(round = current_round).demand * player_count
         demand_forecast_plus1 = demand_cf_set.get(round = (current_round + 1)).demand * player_count
@@ -845,7 +631,7 @@ def staff_profil(request):
         'settings': settings.objects.filter(game = hosted_game),
         'bids': bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).select_related('user').order_by('price'),
         'round': settings.objects.values_list('value', flat=True).get(name='round', game = hosted_game),
-        'max_round': settings.objects.values_list('value', flat=True).get(name='max_round', game = hosted_game),
+        'max_round': max_round,
         'hosted_game': hosted_game,
         "form_settings": form_s,
         "form_nextround": form_n,
@@ -853,7 +639,7 @@ def staff_profil(request):
         'form_deletegame': form_dg,
         'form_removeplayer': form_rp,
         'form_ex': form_export,
-        'form_finalround': form_f,
+        'form_enforce': form_enforce,
         'demand': demand,
         'demand_forecast_plus1': demand_forecast_plus1,
         'demand_forecast_plus2': demand_forecast_plus2,

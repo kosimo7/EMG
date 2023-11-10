@@ -71,14 +71,18 @@
             <tr>
                 <th scope="col">Demand Round {{ last_round|floatformat:0 }}</th>
                 <th scope="col">Total Capacity installed (all technologies)</th>
+                {% if user.is_staff %}
                 <th scope="col">Total Capacity offered (all technologies)</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
             <tr scope="row">
                 <td>{{ demand_minus_one }} MWh</td>
                 <td>{{ total_installed_capacity }} MW</td>
+                {% if user.is_staff %}
                 <td>{{ total_bid_capacity }} MW</td>
+                {% endif %}
             </tr>
         </tbody>
     </table>

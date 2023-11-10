@@ -12,14 +12,14 @@
         <form method="POST">
             <fieldset class="form-group">
             {% csrf_token %}
-                <legend class="border-bottom mb-4">Start or End the Game</legend>
+                <legend class="border-bottom mb-2">Start or End the Game</legend>
                 {{ form_startend|crispy }} 
             </fieldset>
             <div class="form-group">
                 {% if not hosted_game.ready %}
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" >Start Game</button>
+                <button class="btn btn-outline-info mb-4" type="submit" onclick="return confirm('Are you sure?');" >Start Game</button>
                 {% else %}
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" >End Game</button>
+                <button class="btn btn-outline-info mb-4" type="submit" onclick="return confirm('Are you sure?');" >End Game</button>
                 {% endif %}
             </div>
         </form> 
@@ -31,7 +31,7 @@
             <form method="POST">
                 <fieldset class="form-group">
                 {% csrf_token %}
-                    <legend class="border-bottom mb-4">Delete Game</legend>
+                    <legend class="border-bottom mb-2">Delete Game</legend>
                     {{ form_deletegame|crispy }} 
                 </fieldset>
                 <div class="form-group">
@@ -45,41 +45,47 @@
     <h3 style="clear:both"><strong>Round: {{ round|floatformat }} of {{ max_round|floatformat }}</strong></h3>
     {% endif %} 
 
-    {% if round != max_round %}   
-        <!-- Next Round Form -->
-        {% if hosted_game.ready and not hosted_game.final %}
-        <div style="clear:both">
-            <form method="POST">
-                <fieldset class="form-group">
+    <!-- Next Round Form -->
+    {% if hosted_game.ready and not hosted_game.final %}
+    <div style="clear:both">
+        <form method="POST">
+            <fieldset class="form-group">
                 {% csrf_token %}
-                    <legend class="border-bottom mb-4">End Current Round, Initialize Price Setting and Start the next Round</legend><br>
-                    {{ form_nextround|crispy }} 
-                </fieldset>
-                <div class="form-group">
-                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Start Next Round</button>
-                </div>
-            </form> 
-        </div>
-        {% endif %}
-        <br>
-    {% elif round == max_round %}   
-        <!-- Final Round Form -->
-        {% if hosted_game.ready and not hosted_game.final %}
-        <div style="clear:both">
-            <form method="POST">
-                <fieldset class="form-group">
-                {% csrf_token %}
-                    <legend class="border-bottom mb-4">End the final Round, Initialize Price Setting and redirect users to the Final Results Screen</legend><br>
-                    {{ form_finalround|crispy }} 
-                </fieldset>
-                <div class="form-group">
-                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="fnlrndbtn" >Start Final Round</button>
-                </div>
-            </form> 
-        </div>
-        {% endif %}
-        <br>
-    {% endif %}   
+                {% if round != max_round %}  
+                <legend class="border-bottom mb-2">End Current Round, Initialize Price Setting and Start the next Round</legend><br>
+                {% elif round == max_round %}
+                <legend class="border-bottom mb-2">End the final Round, Initialize Price Setting and redirect users to the Final Results Screen</legend><br> 
+                {% endif %}
+                {{ form_nextround|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                {% if round != max_round %} 
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Start Next Round</button>
+                {% elif round == max_round %}
+                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="fnlrndbtn" >Start Final Round</button>
+                {% endif %}
+            </div>
+        </form> 
+    </div>
+    {% endif %}
+    <br>
+
+    <!-- Export Data Form -->
+    {% if hosted_game.ready %}
+    <div style="clear:both">
+        <form method="POST">
+            <fieldset class="form-group">
+            {% csrf_token %}
+                <legend class="border-bottom mb-2">Export Game Data</legend>
+                Press the button below to export all game data of the current round and Merit Order of the previous round for further analysis.
+                {{ form_ex|crispy }} 
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info mb-4" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Export</button>
+            </div>
+        </form> 
+    </div>
+    {% endif %}
 
     <!-- Market Overview -->
     <h4 style="clear:both">Demand and Weather forecast</h4>
@@ -154,25 +160,9 @@
             </div>
         </form>
     </div>
-    
-    <!-- Export Data Form -->
-    {% if hosted_game.ready %}
-    <div style="clear:both">
-        <form method="POST">
-            <fieldset class="form-group">
-            {% csrf_token %}
-                <legend class="border-bottom mb-4">Export Game Data</legend>
-                Press the button below to export all game data of the current round and Merit Order of the previous round for further analysis.
-                {{ form_ex|crispy }} 
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Export</button>
-            </div>
-        </form> 
-    </div>
-    {% endif %}
 
-    <h5>Click here to view the detailed data for each generation technology, including costs associated with each unit</h5>
+    <br>
+    <h5 >Click here to view the detailed data for each generation technology, including costs associated with each unit</h5>
     <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
     <br>
     <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh all Lists</a>
@@ -226,6 +216,19 @@
                             </fieldset>
                             <div class="form-group">
                                 <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="setngsbtn">Confirm Removal</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Enforce Ready Form -->
+                    <div>
+                        <form method="POST">
+                            <fieldset class="form-group">
+                            {% csrf_token %}
+                                <legend class="border-bottom mb-4">Force all players to be 'ready' for the next round!</legend>
+                                {{ form_enforce|crispy }} 
+                            </fieldset>
+                            <div class="form-group">
+                                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="enforcebtn">Enforce 'Ready'</button>
                             </div>
                         </form>
                     </div>

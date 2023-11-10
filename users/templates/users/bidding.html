@@ -249,12 +249,13 @@
                 {{ form_playerready|crispy }} 
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-success mt-2" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not make anymore actions until the next round!');" name="constructbtn">I am Ready!</button>
+                <button class="btn btn-success mt-2 mb-4" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not make anymore actions until the next round!');" name="constructbtn">I am Ready!</button>
+                <!-- Go Back Button -->
+                <a  class="btn btn-secondary mt-2 mb-4" role="button" onclick="history.back()" style="float:right; ">Go Back</a>
             </div>
         </form>
     </div>
+
     
-    <!-- Go Back Button -->
-    <a  class="btn btn-secondary mb-4" role="button" onclick="history.back()" style="float:right; ">Go Back</a>
     
 {% endblock content%}

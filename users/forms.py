@@ -15,10 +15,14 @@ from game.models import (
 # User Registration Form (based on default django UserCreationForm)
 class UserRegisterForm(UserCreationForm): # RegisterForm basiert auf Standard UserCreationForm
     email = forms.EmailField()
+    is_staff = forms.BooleanField(initial=False, label='Create a Gamemaster Account? Tick this box if you want to host a game, otherwise leave blank.', required=False)
     
     class Meta:
         model = User # DB, in welche gespeichert werden soll
-        fields = ['username', 'email', 'password1', 'password2'] # Eingabefelder und deren Reihenfolge
+        fields = ['username', 'email', 'is_staff', 'password1', 'password2'] # Eingabefelder und deren Reihenfolge
+        labels = {
+            'is_staff': 'Create a Gamemaster Account? Tick this box if you want to host a game, otherwise leave blank.'
+        }
 
 # Construction Form
 class ConstructionForm(forms.ModelForm): # Formular basierend auf der construction-Datenbank
@@ -95,11 +99,6 @@ class NextRoundForm(forms.Form):
     next_round = forms.BooleanField(widget=forms.HiddenInput, initial=True)
     confirm = forms.BooleanField(initial=False, required=True, label='Confirm')
 
-# Initialize final Round
-class FinalRoundForm(forms.Form):
-    final_round = forms.BooleanField(widget=forms.HiddenInput, initial=True)
-    confirm = forms.BooleanField(initial=False, required=True, label='Confirm')
-
 # New Game Session Form
 class NewGameSessionForm(forms.ModelForm):
     new_game = forms.BooleanField(widget=forms.HiddenInput, initial=True)
@@ -142,7 +141,7 @@ class StartEndGameSessionForm(forms.Form):
 class PlayerReadyForm(forms.Form):
     player_ready = forms.BooleanField(widget=forms.HiddenInput, initial=True)
 
-# Remove Player from a Game
+# Remove Player from a Game Form
 class RemovePlayerForm(forms.Form):
     remove_player = forms.BooleanField(widget=forms.HiddenInput, initial=True)
     id = forms.IntegerField(required=True, label='Enter Players Profile ID')
@@ -150,3 +149,7 @@ class RemovePlayerForm(forms.Form):
 # Export Data Form
 class ExportForm(forms.Form):
     export_data = forms.BooleanField(widget=forms.HiddenInput, initial=True)
+
+# Enforce Ready Form
+class EnforceReadyForm(forms.Form):
+    enforce_ready = forms.BooleanField(widget=forms.HiddenInput, initial=True)
