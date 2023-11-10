@@ -95,15 +95,12 @@
     <br>
     
     <h2>Generation System</h2>
-
-    
-
+    <h4 class="d-inline-flex gap-1">Technology Data: </h4>
     <p class="d-inline-flex gap-1">
         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-            Display Technology Data
+            Click here to view the detailed cost and capacity data for each generation technology unit
         </button>
     </p>
-    <h5 class="d-inline-flex gap-1">Click here to view the detailed cost and capacity data for each generation technology unit</h5>
     <div class="collapse" id="collapseExample">
         <div class="card card-body">
             <table class="table table-striped">
@@ -139,31 +136,43 @@
         </div>
     </div>
 
-    <h4>All available Power Plants</h4>
-    <!--Generation System Table-->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Technology</th>
-            <th scope="col">Capacity</th>
-            <th scope="col">Remaining Lifetime (rounds)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for gen in generation_systems %}
-            <tr scope="row">
-                <td>{{ gen.id}}</td>
-                <td>{{ gen.technology}}</td>
-                <td>{{ gen.capacity}}</td>  
-                <td>{{ gen.until_decommissioned}}</td> 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="accordion" id="accordionGensys">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <h5><strong>All available Power Plants</strong></h5>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionGensys">
+                <div class="accordion-body">
+                    <!--Generation System Table-->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Technology</th>
+                            <th scope="col">Capacity</th>
+                            <th scope="col">Remaining Lifetime (rounds)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gen in generation_systems %}
+                            <tr scope="row">
+                                <td>{{ gen.id}}</td>
+                                <td>{{ gen.technology}}</td>
+                                <td>{{ gen.capacity}}</td>  
+                                <td>{{ gen.until_decommissioned}}</td> 
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>                
+                </div>
+            </div>
+        </div>    
+    </div>
 
     <br>
-    <h3>Step One: Decommission.</h3>
+    <h3><strong>Step One: Decommission.</strong></h3>
     <h5></h5>
         <!-- Form Desommission -->
         <div>
@@ -172,24 +181,23 @@
                 {% csrf_token %}
                     <legend class="border-bottom mb-4">
                         Here you can decommission power plants that you no longer wish to keep in your portfolio.<br>
-                        The chosen power plant will be immediately removed from your generation system and can no longer be used for production!
+                        The chosen power plant will be <strong>immediately removed</strong> from your generation system and can no longer be used for production!
                     </legend>
                     {{ form_decommission|crispy }} 
                 </fieldset>
                 <div class="form-group">
-                    <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="decommbtn" data-bs-toggle="tooltip" title="The Generation Unit will be removed from your Generation System!">Confirm Decommission</button>
+                    <button class="btn btn-outline-info mt-2" type="submit" onclick="return confirm('Are you sure?');" name="decommbtn" data-bs-toggle="tooltip" title="The Generation Unit will be removed from your Generation System!">Confirm Decommission</button>
                 </div>
             </form>
         </div>
-    
     <br>
-    <h3>Step Two: Construction.</h3>
+
+    <h3><strong>Step Two: Construction.</strong></h3>
     <legend class="border-bottom mb-4">
         You can use your available budget to build new generators. <br>
         Choose a technology to order construction of generation units. Investment costs are not refundable!
         <br>
     </legend>
-    
     
     <!-- Select Technology Image Buttons -->
     <div class="button-container d-inline-block me-2" id="select-button-coal">
@@ -389,31 +397,41 @@
         });
     </script>
 
-    <h3>All active Construction Orders</h3>
-    <!--Construction Table-->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Technology</th>
-            <th scope="col">Remaining Construction Time (rounds)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for con in constructions %}
-            <tr scope="row">
-                <td>{{ con.id}}</td>
-                <td>{{ con.technology}}</td> 
-                <td>{{ con.until_constructed}}</td> 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    
+<div class="accordion" id="accordionConstruct">
+    <div class="accordion-item"> 
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <h5><strong>All active Construction Orders</strong></h5>
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionConstruct">
+            <div class="accordion-body">
+                <!--Construction Table-->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Technology</th>
+                        <th scope="col">Remaining Construction Time (rounds)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for con in constructions %}
+                        <tr scope="row">
+                            <td>{{ con.id}}</td>
+                            <td>{{ con.technology}}</td> 
+                            <td>{{ con.until_constructed}}</td> 
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
     
-    <a  href="{% url 'users-bidding' %}" class="btn btn-primary mb-4" role="button" style="float:left; margin-right:100px;">Continue to Step Three: Bidding</a>
+    <a  href="{% url 'users-bidding' %}" class="btn btn-success mb-4" role="button" style="float:left; margin-right:100px;">Continue to Step Three: Bidding</a>
 
     
     <!-- Go Back Button -->

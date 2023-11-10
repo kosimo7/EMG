@@ -176,7 +176,7 @@
     <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
     <br>
     <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh all Lists</a>
-    <div class="accordion accordion-flush" id="accordionPlayers">
+    <div class="accordion" id="accordionPlayers">
         <!-- 1 -->
         <div class="accordion-item">
             <h2 class="accordion-header">
@@ -184,7 +184,7 @@
                     <h4><strong>Joined Players</strong></h4>
                 </button>
             </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show">
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
                 <div class="accordion-body">
                     
                     <!--Profiles Table-->
@@ -239,7 +239,7 @@
                     <h4><strong>All Generation Systems</strong></h4>
                 </button>
             </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse show">
+            <div id="collapseTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
                 <div class="accordion-body">
                     <!--Kraftwerkspark Tabelle-->
                     <table class="table table-striped">
@@ -274,7 +274,7 @@
                     <h4><strong>Construction Orders</strong></h4>
                 </button>
             </h2>
-            <div id="collapseThree" class="accordion-collapse collapse show">
+            <div id="collapseThree" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
                 <div class="accordion-body">
                     <!--Kraftwerkspark Tabelle-->
                     <table class="table table-striped">
@@ -309,7 +309,7 @@
                     <h4><strong>Bids</strong></h4>
                 </button>
             </h2>
-            <div id="collapseFour" class="accordion-collapse collapse show">
+            <div id="collapseFour" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
                 <div class="accordion-body">
                     <!-- Bids -->
                     <table class="table table-striped">

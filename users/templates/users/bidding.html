@@ -32,13 +32,12 @@
         </tbody>
     </table> 
 
-    
+    <h4 class="d-inline-flex gap-1">Technology Data:</h4>
     <p class="d-inline-flex gap-1">
         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-            Display Technology Data
+            Click here to view the detailed cost and capacity data for each generation technology unit
         </button>
     </p>
-    <h4 class="d-inline-flex gap-1">Click here to view the detailed data for each generation unit and technology</h4>
     <div class="collapse" id="collapseExample">
         <div class="card card-body">
             <table class="table table-striped">
@@ -188,29 +187,40 @@
     </div>
     <br>
 
-    <h4>Bids placed this round</h4>
-    <!--Bidding Table-->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Technology</th>
-            <th scope="col">Price</th>
-            <th scope="col">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for b in bids %}
-            <tr scope="row">
-                <td>{{ b.id}}</td>
-                <td>{{ b.technology}}</td>
-                <td>{{ b.price}} €/MWh</td>  
-                <td>{{ b.amount}} MW</td> 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
+    <div class="accordion" id="accordionBids">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <strong><h5>Bids placed this round</h5></strong>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionBids">
+                <div class="accordion-body">
+                    <!--Bidding Table-->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Technology</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in bids %}
+                            <tr scope="row">
+                                <td>{{ b.id}}</td>
+                                <td>{{ b.technology}}</td>
+                                <td>{{ b.price}} €/MWh</td>  
+                                <td>{{ b.amount}} MW</td> 
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Formular Gebote Löschen -->
     <div>
@@ -221,7 +231,7 @@
                 {{ form_deletebid|crispy }} 
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit" onclick="return confirm('Are you sure?');" name="dltbidbtn">Confirm Deletion</button>
+                <button class="btn btn-outline-info mt-2" type="submit" onclick="return confirm('Are you sure?');" name="dltbidbtn">Confirm Deletion</button>
             </div>
         </form>
     </div>
@@ -239,12 +249,12 @@
                 {{ form_playerready|crispy }} 
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info mt-2" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not make anymore actions until the next round!');" name="constructbtn">I am Ready!</button>
+                <button class="btn btn-success mt-2" type="submit" onclick="return confirm('Are you sure? Once you are ready, you can not make anymore actions until the next round!');" name="constructbtn">I am Ready!</button>
             </div>
         </form>
     </div>
     
     <!-- Go Back Button -->
-    <a  class="btn btn-secondary mb-4" role="button" onclick="history.back()" style="float:right;">Go Back</a>
+    <a  class="btn btn-secondary mb-4" role="button" onclick="history.back()" style="float:right; ">Go Back</a>
     
 {% endblock content%}
