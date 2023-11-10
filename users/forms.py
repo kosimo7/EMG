@@ -40,7 +40,7 @@ class DecommissionForm(forms.Form): # Formular basierend auf der generation_syst
 # Bidding Form
 class BiddingForm(forms.ModelForm):
     submit_bid = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
-    price = forms.DecimalField(min_value=0, decimal_places=2, max_digits=10)
+    price = forms.DecimalField(min_value=0, max_value=999 ,decimal_places=2, max_digits=10)
     amount = forms.DecimalField(min_value=0, decimal_places=2, max_digits=10)
 
     class Meta:
