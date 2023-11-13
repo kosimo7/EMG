@@ -100,27 +100,27 @@
         Place Bid: Choose a generation technology and enter the price and the capacity. <br>
     </legend>
     <!-- Select Technology Image Buttons -->
-    <div class="button-container d-inline-block me-2" id="select-button-coal">
+    <div class="button-container d-inline-block me-2" id="select-button-coal" data-technology="Coal">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/coal.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-wind">
+    <div class="button-container d-inline-block me-2" id="select-button-wind" data-technology="Wind">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/wind.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-solar">
+    <div class="button-container d-inline-block me-2" id="select-button-solar" data-technology="Solar">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/solar.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-nuclear">
+    <div class="button-container d-inline-block me-2" id="select-button-nuclear" data-technology="Nuclear">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/nuclear.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-ccgt">
+    <div class="button-container d-inline-block me-2" id="select-button-ccgt" data-technology="CCGT">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/ccgt.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
@@ -129,46 +129,14 @@
     <!-- Select Technology JS -->
     <script>
         $(document).ready(function () {
-            $("#select-button-coal").on("click", function () {
-                var selectedValue = "Coal"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-wind").on("click", function () {
-                var selectedValue = "Wind"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-solar").on("click", function () {
-                var selectedValue = "Solar"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-nuclear").on("click", function () {
-                var selectedValue = "Nuclear"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-ccgt").on("click", function () {
-                var selectedValue = "CCGT"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
+            // Handle the click event of the specific buttons
+            $('#select-button-coal, #select-button-wind, #select-button-solar, #select-button-nuclear, #select-button-ccgt').on('click', function () {
+                // Set the selected technology based on the button clicked
+                var selectedTechnology = $(this).data('technology');
+                $('#id_technology').val(selectedTechnology);
+
+                // Trigger the change event to update dynamic content
+                $('#id_technology').trigger('change');
             });
         });
     </script>

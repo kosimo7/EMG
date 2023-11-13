@@ -145,27 +145,27 @@
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionGensys">
                 <div class="accordion-body">
-                    <!--Generation System Table-->
+                    <!-- Generation System Table-->
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                            <th scope="col">ID</th>
                             <th scope="col">Technology</th>
-                            <th scope="col">Capacity</th>
+                            <th scope="col">Number of Units</th>
+                            <th scope="col">Total Capacity</th>
                             <th scope="col">Remaining Lifetime (rounds)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for gen in generation_systems %}
+                            {% for entry in generation_systems %}
                             <tr scope="row">
-                                <td>{{ gen.id}}</td>
-                                <td>{{ gen.technology}}</td>
-                                <td>{{ gen.capacity}}</td>  
-                                <td>{{ gen.until_decommissioned}}</td> 
+                                <td>{{ entry.technology}}</td>
+                                <td>{{ entry.entry_count}}</td>
+                                <td>{{ entry.total_capacity}}</td>  
+                                <td>{{ entry.until_decommissioned}}</td> 
                             </tr>
                             {% endfor %}
                         </tbody>
-                    </table>                
+                    </table>
                 </div>
             </div>
         </div>    
@@ -173,24 +173,100 @@
 
     <br>
     <h3><strong>Step One: Decommission.</strong></h3>
+    <legend class="border-bottom mb-4">
+        Here you can decommission power plants that you no longer wish to keep in your portfolio.<br>
+        The chosen amount of power plants will be <strong>immediately removed</strong> from your generation system and can no longer be used for production!<br>
+        Generation units with lower remaining lifetime will be decommissioned first.
+    </legend>
+
+    <!-- Select Decommission Technology Image Buttons -->
+    <div class="button-container d-inline-block me-2" id="select-button-coal-delete" data-technology="Coal">
+        <button class="btn btn-md btn-outline-danger">
+            <img src="{% static '/images/coal.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-wind-delete" data-technology="Wind">
+        <button class="btn btn-md btn-outline-danger">
+            <img src="{% static '/images/wind.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-solar-delete" data-technology="Solar">
+        <button class="btn btn-md btn-outline-danger">
+            <img src="{% static '/images/solar.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-nuclear-delete" data-technology="Nuclear">
+        <button class="btn btn-md btn-outline-danger">
+            <img src="{% static '/images/nuclear.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+    <div class="button-container d-inline-block me-2" id="select-button-ccgt-delete" data-technology="CCGT">
+        <button class="btn btn-md btn-outline-danger">
+            <img src="{% static '/images/ccgt.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
+        </button>
+    </div>
+
     <h5></h5>
         <!-- Form Desommission -->
         <div>
             <form method="POST">
                 <fieldset class="form-group">
-                {% csrf_token %}
-                    <legend class="border-bottom mb-4">
-                        Here you can decommission power plants that you no longer wish to keep in your portfolio.<br>
-                        The chosen power plant will be <strong>immediately removed</strong> from your generation system and can no longer be used for production!
-                    </legend>
+                    {% csrf_token %}
                     {{ form_decommission|crispy }} 
                 </fieldset>
+                <ul class="list-group mb-4 mt-2">
+                    <li class="list-group-item">Total Capacity (MW): <div id="total_capacity" style="display:inline;"></div></li>
+                </ul>
                 <div class="form-group">
-                    <button class="btn btn-outline-info mt-2" type="submit" onclick="return confirm('Are you sure?');" name="decommbtn" data-bs-toggle="tooltip" title="The Generation Unit will be removed from your Generation System!">Confirm Decommission</button>
+                    <button class="btn btn-outline-info mt-2" type="submit" onclick="return confirm('Are you sure?');" data-bs-toggle="tooltip" title="The Generation Unit will be removed from your Generation System!">
+                        Confirm Decommission
+                    </button>
                 </div>
             </form>
         </div>
     <br>
+
+    <!-- JavaScript Decommission Technology Buttons-->
+    <script>
+        $(document).ready(function () {
+            // Handle the click event of the specific buttons
+            $('#select-button-coal-delete, #select-button-wind-delete, #select-button-solar-delete, #select-button-nuclear-delete, #select-button-ccgt-delete').on('click', function () {
+                // Set the selected technology based on the button clicked
+                var selectedTechnology = $(this).data('technology');
+                $('#id_techs').val(selectedTechnology);
+
+                // Trigger the change event to update dynamic content
+                $('#id_techs').trigger('change');
+            });
+
+            // Handle the change event of the 'id_technology' field
+            $('#id_techs').on('change', updateDynamicData);
+    
+            // Handle the change event of the amount field
+            $('#id_units').on('change', updateDynamicData);
+    
+            function updateDynamicData() {
+                var selectedTechnology = $('#id_techs').val();
+                var selectedAmount = $('#id_units').val();
+    
+                // Perform an AJAX request to fetch dynamic content based on the selected values
+                jQuery.ajax({
+                    url: 'get_dynamic_content_decommission/', 
+                    data: {
+                        selected_technology_delete: selectedTechnology,
+                        selected_amount_delete: selectedAmount
+                    },
+                    success: function (data) {
+                        // Format the numbers with thousand separators
+                        var TotalCapacityFormatted = data.total_capacity.toLocaleString();
+
+                        // Update the content of the divs with the formatted numbers
+                        $('#total_capacity').html(TotalCapacityFormatted);
+                    }
+                });
+            }
+        });
+    </script>
 
     <h3><strong>Step Two: Construction.</strong></h3>
     <legend class="border-bottom mb-4">
@@ -199,164 +275,32 @@
         <br>
     </legend>
     
-    <!-- Select Technology Image Buttons -->
-    <div class="button-container d-inline-block me-2" id="select-button-coal">
+    <!-- Select Construction Technology Image Buttons -->
+    <div class="button-container d-inline-block me-2" id="select-button-coal" data-technology="Coal">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/coal.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-wind">
+    <div class="button-container d-inline-block me-2" id="select-button-wind" data-technology="Wind">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/wind.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-solar">
+    <div class="button-container d-inline-block me-2" id="select-button-solar" data-technology="Solar">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/solar.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-nuclear">
+    <div class="button-container d-inline-block me-2" id="select-button-nuclear" data-technology="Nuclear">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/nuclear.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-    <div class="button-container d-inline-block me-2" id="select-button-ccgt">
+    <div class="button-container d-inline-block me-2" id="select-button-ccgt" data-technology="CCGT">
         <button class="btn btn-md btn-outline-secondary">
             <img src="{% static '/images/ccgt.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
-
-    <!-- Select Technology JS -->
-    <script>
-        $(document).ready(function () {
-            $("#select-button-coal").on("click", function () {
-                var selectedValue = "Coal"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Handle the click event of the 'select-button'
-            $('#select-button-coal').on('click', function () {
-                var selectedValue = $('#id_technology').val();
-                // Perform an AJAX request to fetch dynamic content based on the selected value
-                jQuery.ajax({
-                    url: 'get_dynamic_content/',  // Replace with the actual URL
-                    data: { selected_value: selectedValue },
-                    success: function (data) {
-                        $('#investment_cost').html(data.investment_cost);
-                        $('#build_time').html(data.build_time);
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-wind").on("click", function () {
-                var selectedValue = "Wind"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Handle the click event of the 'select-button'
-            $('#select-button-wind').on('click', function () {
-                var selectedValue = $('#id_technology').val();
-                // Perform an AJAX request to fetch dynamic content based on the selected value
-                jQuery.ajax({
-                    url: 'get_dynamic_content/',  // Replace with the actual URL
-                    data: { selected_value: selectedValue },
-                    success: function (data) {
-                        $('#investment_cost').html(data.investment_cost);
-                        $('#build_time').html(data.build_time);
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-solar").on("click", function () {
-                var selectedValue = "Solar"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Handle the click event of the 'select-button'
-            $('#select-button-solar').on('click', function () {
-                var selectedValue = $('#id_technology').val();
-                // Perform an AJAX request to fetch dynamic content based on the selected value
-                jQuery.ajax({
-                    url: 'get_dynamic_content/',  // Replace with the actual URL
-                    data: { selected_value: selectedValue },
-                    success: function (data) {
-                        $('#investment_cost').html(data.investment_cost);
-                        $('#build_time').html(data.build_time);
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-nuclear").on("click", function () {
-                var selectedValue = "Nuclear"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Handle the click event of the 'select-button'
-            $('#select-button-nuclear').on('click', function () {
-                var selectedValue = $('#id_technology').val();
-                // Perform an AJAX request to fetch dynamic content based on the selected value
-                jQuery.ajax({
-                    url: 'get_dynamic_content/',  // Replace with the actual URL
-                    data: { selected_value: selectedValue },
-                    success: function (data) {
-                        $('#investment_cost').html(data.investment_cost);
-                        $('#build_time').html(data.build_time);
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#select-button-ccgt").on("click", function () {
-                var selectedValue = "CCGT"; // Replace with the desired value
-                // Update the value of the ModelChoiceField
-                $("#id_technology").val(selectedValue);
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            // Handle the click event of the 'select-button'
-            $('#select-button-ccgt').on('click', function () {
-                var selectedValue = $('#id_technology').val();
-                // Perform an AJAX request to fetch dynamic content based on the selected value
-                jQuery.ajax({
-                    url: 'get_dynamic_content/',  // Replace with the actual URL
-                    data: { selected_value: selectedValue },
-                    success: function (data) {
-                        $('#investment_cost').html(data.investment_cost);
-                        $('#build_time').html(data.build_time);
-                    }
-                });
-            });
-        });
-    </script>
 
     <!-- Form Construction -->
     <div>
@@ -377,23 +321,47 @@
     </div>
     <br>
 
-    
-    <!-- JavaScript -->
+    <!-- JavaScript Construction Technology Buttons-->
     <script>
         $(document).ready(function () {
-            // Handle the change event of the 'technology' field
-            $('#id_technology').on('change', function () {
-                var selectedValue = $(this).val();
-                // Perform an AJAX request to fetch dynamic content based on the selected value
+            // Handle the click event of the specific buttons
+            $('#select-button-coal, #select-button-wind, #select-button-solar, #select-button-nuclear, #select-button-ccgt').on('click', function () {
+                // Set the selected technology based on the button clicked
+                var selectedTechnology = $(this).data('technology');
+                $('#id_technology').val(selectedTechnology);
+
+                // Trigger the change event to update dynamic content
+                $('#id_technology').trigger('change');
+            });
+
+            // Handle the change event of the 'id_technology' field
+            $('#id_technology').on('change', updateDynamicData);
+    
+            // Handle the change event of the amount field
+            $('#id_amount').on('change', updateDynamicData);
+    
+            function updateDynamicData() {
+                var selectedTechnology = $('#id_technology').val();
+                var selectedAmount = $('#id_amount').val();
+    
+                // Perform an AJAX request to fetch dynamic content based on the selected values
                 jQuery.ajax({
-                    url: 'get_dynamic_content/',  // Replace with the actual URL
-                    data: { selected_value: selectedValue },
+                    url: 'get_dynamic_content/', 
+                    data: {
+                        selected_technology: selectedTechnology,
+                        selected_amount: selectedAmount
+                    },
                     success: function (data) {
-                        $('#investment_cost').html(data.investment_cost);
-                        $('#build_time').html(data.build_time);
+                        // Format the numbers with thousand separators
+                        var investmentCostFormatted = data.investment_cost.toLocaleString();
+                        var buildTimeFormatted = data.build_time.toLocaleString();
+
+                        // Update the content of the divs with the formatted numbers
+                        $('#investment_cost').html(investmentCostFormatted);
+                        $('#build_time').html(buildTimeFormatted);
                     }
                 });
-            });
+            }
         });
     </script>
 
@@ -410,17 +378,17 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                        <th scope="col">ID</th>
                         <th scope="col">Technology</th>
+                        <th scope="col">Number of Units</th>
                         <th scope="col">Remaining Construction Time (rounds)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for con in constructions %}
+                        {% for entry in constructions %}
                         <tr scope="row">
-                            <td>{{ con.id}}</td>
-                            <td>{{ con.technology}}</td> 
-                            <td>{{ con.until_constructed}}</td> 
+                            <td>{{ entry.technology }}</td>
+                            <td>{{ entry.entry_count }}</td> 
+                            <td>{{ entry.until_constructed }}</td> 
                         </tr>
                         {% endfor %}
                     </tbody>

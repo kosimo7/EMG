@@ -6,11 +6,13 @@ from users.models import (
     construction,
     bids,
     Profile,
+    generation_system,
     )
 from game.models import (
     settings, # Game settings
     sessions,
     demand_cf,
+    tech
     )
 # User Registration Form (based on default django UserCreationForm)
 class UserRegisterForm(UserCreationForm): # RegisterForm basiert auf Standard UserCreationForm
@@ -37,9 +39,12 @@ class ConstructionForm(forms.ModelForm): # Formular basierend auf der constructi
         }
 
 # Decomission Form
-class DecommissionForm(forms.Form): # Formular basierend auf der generation_system-Datenbank
+class DecommissionForm(forms.Form): 
     delete_generator = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
-    generator_id = forms.IntegerField(label="Please Enter Generator ID", min_value=0)
+    choices = tech.objects.values_list('technology', 'technology')
+    techs = forms.ChoiceField(choices=choices, label='Choose Technology')
+    # techs = forms.ModelChoiceField(queryset=tech.objects.all(), label='Choose Technology')
+    units = forms.IntegerField(initial=1, label='How many units?', required=True, min_value=1)
 
 # Bidding Form
 class BiddingForm(forms.ModelForm):

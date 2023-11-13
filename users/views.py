@@ -39,7 +39,8 @@ from game.models import (
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save  # importing post save signal
 from django.dispatch import receiver # Signal receiver decorator
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from decimal import Decimal
 
 # User Register view
 def register(request):
@@ -80,69 +81,51 @@ def profil(request):
                 return redirect('users-overview')
             # Decommission is only possible, if the generator is not scheduled for current round (e.g. the capacity is not required to fullfill bids)
             cap = generation_system.objects.filter(user_id = request.user.id)                            # Kraftwerkspark des Spielers
-            techs = tech.objects.values_list('technology', flat=True)                                    # Liste aller Technologien
             current_round = settings.objects.get(game_id = joined_game, name = 'round').value
             cf_wind = demand_cf.objects.get(key = current_game.variables, round = current_round).cf_wind
             cf_pv = demand_cf.objects.get(key = current_game.variables, round = current_round).cf_pv
-            # Summe der Kapazität je Technologie des Spielers (als dict)                                  
-            capsum = {} # empty dictionary
-            for t in techs:
-                if t == 'Wind':
-                    capsum[t] = sum(cap.filter(technology = t).values_list('capacity', flat=True)) * cf_wind
-                if t == 'Solar':  
-                    capsum[t] = sum(cap.filter(technology = t).values_list('capacity', flat=True)) * cf_pv
-                elif t != 'Solar' and t != 'Wind':
-                    capsum[t] = sum(cap.filter(technology = t).values_list('capacity', flat=True))          
-            # Alle Gebote des Spielers 
             user_bids = bids.objects.filter(user_id = request.user.id)        
-            # Verbleidende Kapazität zum Anbieten berechnen                                                                                           
-            remaining_cap = {}                                                                           
-            for t in techs:
-                if t == 'Wind':
-                    remaining_cap[t] = sum(cap.filter(technology = t).values_list('capacity', flat=True)) * cf_wind
-                if t == 'Solar':  
-                    remaining_cap[t] = sum(cap.filter(technology = t).values_list('capacity', flat=True)) * cf_pv
-                elif t != 'Solar' and t != 'Wind':
-                    remaining_cap[t] = sum(cap.filter(technology = t).values_list('capacity', flat=True))  
-            for t in techs:
-                remaining_cap[t] -= sum(user_bids.filter(technology = t).values_list('amount', flat=True))
-            # Formular 1
+            # Formular Kraftwerk löschen
             form_d = DecommissionForm()
             if 'delete_generator' in request.POST:  # prüfen ob versteckte Boolean Variable aus forms.py in POST vorhanden um Formulare zu unterscheiden 
                 if request.method == "POST":
                     form_d = DecommissionForm(request.POST)
-                    gen_sys = generation_system.objects.filter(user_id=request.user)    # Alle Kraftwerke des Spielers
-                    if form_d.is_valid() and (form_d.cleaned_data['generator_id'] in gen_sys.values_list('id', flat=True)): # Bedingung: Formular valide UND die eingegebene Kraftwerks-ID muss im Kraftwerkspark des Users vorhanden sein
-                        gen_tech = gen_sys.get(id = form_d.cleaned_data['generator_id']).technology
-                        if f'{gen_tech}' == 'Wind':
-                            if remaining_cap[f'{gen_tech}'] >= (gen_sys.get(id = form_d.cleaned_data['generator_id']).capacity * cf_wind):
-                                generation_system.objects.filter(id=form_d.cleaned_data['generator_id']).delete() # Kraftwerk löschen
-                                messages.success(request, f'Decommission Successfull!')
+                    if form_d.is_valid():
+                        units = form_d.cleaned_data['units']
+                        technology = form_d.cleaned_data['techs']
+                        # Order units by rounds left, then delete the first x entries where x = the chosen amount of units
+                        gen = generation_system.objects.filter(user = request.user, technology = technology).order_by('until_decommissioned')[:units]
+                        # Cannot delete more Generators than exist
+                        if len(gen) < units:
+                            messages.warning(request, f'You currently do not own {units} {technology} units in your generation system!')
+                            return redirect('users-profile')
+                        # Calculate Capacities
+                        bid_cap = (user_bids.filter(technology = technology).aggregate(Sum('amount')))['amount__sum']
+                        if str(technology) == 'Wind':
+                            cap = (generation_system.objects.filter(user_id = request.user.id, technology = technology).aggregate(Sum('capacity')))['capacity__sum'] * cf_wind
+                        elif str(technology) == 'Solar':
+                            cap = (generation_system.objects.filter(user_id = request.user.id, technology = technology).aggregate(Sum('capacity')))['capacity__sum'] * cf_pv
+                        elif str(technology) != 'Solar' and str(technology) != 'Wind':
+                            cap = (generation_system.objects.filter(user_id = request.user.id, technology = technology).aggregate(Sum('capacity')))['capacity__sum']
+                        # You cannot delete generators if the capacity is already placed in a bid
+                        if cap is not None and bid_cap is not None:
+                            remaining_cap = cap - bid_cap
+                            if str(technology) == 'Wind':
+                                delete_cap = (gen.aggregate(Sum('capacity')))['capacity__sum'] * cf_wind
+                            elif str(technology) == 'Solar':
+                                delete_cap = (gen.aggregate(Sum('capacity')))['capacity__sum'] * cf_pv
+                            elif str(technology) != 'Solar' and str(technology) != 'Wind':
+                                delete_cap = (gen.aggregate(Sum('capacity')))['capacity__sum']
+                            if delete_cap > remaining_cap:
+                                messages.warning(request, f'The chosen units are already scheduled for production! Please edit your placed bids until enough remaining capacity is available.')
                                 return redirect('users-profile')
-                            else:
-                                messages.warning(request, f'The chosen Generator is already scheduled for production! The remaining { gen_tech } capacity must be larger than the capacity of the chosen Generator (ID:{ form_d.cleaned_data["generator_id"] }) multiplied by any possible capacity factors. Please edit your Biddings acordingly before decommission!')
-                                form_d = DecommissionForm()
-                        elif f'{gen_tech}' == 'Solar':
-                            if remaining_cap[f'{gen_tech}'] >= (gen_sys.get(id = form_d.cleaned_data['generator_id']).capacity * cf_pv): 
-                                generation_system.objects.filter(id=form_d.cleaned_data['generator_id']).delete() # Kraftwerk löschen
-                                messages.success(request, f'Decommission Successfull!')
-                                return redirect('users-profile')
-                            else:
-                                messages.warning(request, f'The chosen Generator is already scheduled for production! The remaining { gen_tech } capacity must be larger than the capacity of the chosen Generator (ID:{ form_d.cleaned_data["generator_id"] }) multiplied by any possible capacity factors. Please edit your Biddings acordingly before decommission!')
-                                form_d = DecommissionForm()
-                        elif f'{gen_tech}' != 'Solar' and f'{gen_tech}' != 'Wind':
-                            if remaining_cap[f'{gen_tech}'] >= gen_sys.get(id = form_d.cleaned_data['generator_id']).capacity:
-                                generation_system.objects.filter(id=form_d.cleaned_data['generator_id']).delete() # Kraftwerk löschen
-                                messages.success(request, f'Decommission Successfull!')
-                                return redirect('users-profile')
-                            else:
-                                messages.warning(request, f'The chosen Generator is already scheduled for production! The remaining { gen_tech } capacity must be larger than the capacity of the chosen Generator (ID:{ form_d.cleaned_data["generator_id"] }) multiplied by any possible capacity factors. Please edit your Biddings acordingly before decommission!')
-                                form_d = DecommissionForm()
+                        # Delete Generators
+                        gens = gen.values_list('id', flat=True)
+                        generation_system.objects.filter(id__in = gens).delete()
+                        messages.success(request, f'Decommission Successfull!')
+                        return redirect('users-profile')
                     else:
-                        messages.warning(request, f'Error! Generator does not exists. Please enter a valid Generator ID from your Generation System.')
                         form_d = DecommissionForm()
-                else:
-                    form_d = DecommissionForm()
             # Formular 2
             form_c = ConstructionForm()
             if 'add_generator' in request.POST:    # prüfen ob versteckte Boolean Variable aus forms.py in POST vorhanden um Formulare zu unterscheiden 
@@ -191,6 +174,22 @@ def profil(request):
             cf_solar_forecast_plus2 = demand_cf_set.get(round = (current_round + 2)).cf_pv
             carbon_price = settings.objects.get(name='carbon_price', game = current_game).value
             carbon_price_max = settings.objects.get(name='carbon_price_max', game = current_game).value
+            # Construction Orders
+            constructions = (
+                construction.objects
+                .filter(user_id=request.user.id)
+                .values('technology', 'until_constructed')
+                .annotate(entry_count=Count('id'))
+                .order_by('until_constructed')
+            )
+            # Generation System
+            generation_systems = (
+                generation_system.objects
+                .filter(user_id=request.user.id)
+                .values('technology', 'until_decommissioned')
+                .annotate(entry_count=Count('id'), total_capacity=Sum('capacity'))
+                .order_by('until_decommissioned')
+            )
         elif profile.ready and sessions.objects.get(name = joined_game).ready: # Spieler ist ready für die nächste Runde und das Spiel ist gestartet
             messages.warning(request, f'Please wait for the next round to start!')
             return redirect('users-ready_room')
@@ -203,9 +202,9 @@ def profil(request):
     # HTML Variablen
     context = { 
         "title": "Generation System",
-        "generation_systems": generation_system.objects.filter(user_id=request.user.id).order_by('until_decommissioned', 'capacity'),  # gefiltert nach dem logged-in User
+        'generation_systems': generation_systems,
         "profiles": Profile.objects.filter(user_id=request.user.id),                      # gefiltert nach dem logged-in User
-        "constructions": construction.objects.filter(user_id=request.user.id),            # gefiltert nach dem logged-in User
+        "constructions": constructions,
         'form_construction': form_c,                                                      # Formular für Bauaufträge
         'form_decommission': form_d,                                                      # Formular für Stilllegung
         'form_playerready': form_pr,
@@ -968,20 +967,20 @@ def overview(request):
     return render(request,'users/overview.html', context)
 
 
-# Dynamic Values View
+# Dynamic Values Views
 from django.http import JsonResponse
 def get_dynamic_content(request):
-    selected_value = request.GET.get('selected_value')
-    # Check if selected_value is empty or None
-    if selected_value is None or selected_value == '':
+    selected_technology = request.GET.get('selected_technology')
+    selected_amount = request.GET.get('selected_amount')
+    if selected_technology is None or selected_technology == '':
         context = {
             'investment_cost': None,
             'build_time': None,
         }
-    # You can fetch the dynamic content based on the selected value here
+    # You can fetch the dynamic content based on the selected values here
     else:
-        techs = tech.objects.get(technology = selected_value)
-        investment_cost = techs.investment_cost
+        techs = tech.objects.get(technology = selected_technology)
+        investment_cost = techs.investment_cost * int(selected_amount)
         build_time = techs.build_time
         context = {
             'investment_cost': investment_cost,
@@ -990,3 +989,19 @@ def get_dynamic_content(request):
 
     return JsonResponse(context)
 
+def get_dynamic_content_decommission(request):
+    selected_technology_delete = request.GET.get('selected_technology_delete')
+    selected_amount_delete = request.GET.get('selected_amount_delete')
+    if selected_technology_delete is None or selected_technology_delete == '':
+        context = {
+            'total_capacity': None,
+        }
+    # You can fetch the dynamic content based on the selected values here
+    else:
+        techs = tech.objects.get(technology = selected_technology_delete)
+        total_capacity = techs.capacity * int(selected_amount_delete)
+        context = {
+            'total_capacity': total_capacity,
+        }
+
+    return JsonResponse(context)
