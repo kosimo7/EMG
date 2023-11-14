@@ -485,7 +485,8 @@ def staff_profil(request):
             if request.method == "POST":
                 form_se = StartEndGameSessionForm(request.POST)
                 if form_se.is_valid():
-                    if not hosted_game.ready: # Wenn noch nicht getartet, starte das Spiel
+                    # Wenn noch nicht getartet, starte das Spiel
+                    if not hosted_game.ready: 
                         hosted_game.ready = not hosted_game.ready 
                         hosted_game.save()
                         # Flip Game Final state to false
@@ -497,8 +498,9 @@ def staff_profil(request):
                         current_round.value = 1                                                
                         current_round.save() 
                         # Reset Generation System of all joined players
-                        generation_system.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete() # Delete all joined players GenSys
-                        techlist = list(tech.objects.all().values_list('technology', flat=True))  #get all technologies and convert to list
+                        generation_system.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete() 
+                        # get all technologies and convert to list
+                        techlist = list(tech.objects.all().values_list('technology', flat=True))  
                         #for each technology create specified default amount of generation units
                         for tech_var in techlist: 
                             tech_var = tech.objects.filter(technology=tech_var).first()
@@ -512,13 +514,29 @@ def staff_profil(request):
                         bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
                         # Reset Construction Orders of all joined_players
                         construction.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                        # Reset Merit Order Table
+                        bids_meritorder.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                        # Reset Backup Variables
+                        backup.objects.filter(game = hosted_game).delete()
                         # Redirect
                         messages.success(request, f'Game Started!')
                         return redirect('users-staff_profile')
-                    if hosted_game.ready: # Wenn Spiel getartet, beende das Spiel
+                    # Wenn Spiel getartet, beende das Spiel
+                    if hosted_game.ready: 
                         hosted_game.ready = not hosted_game.ready
                         hosted_game.save()
-                        for p in joined_players: # Alle Spieler werden aus dem Spiel entfernt
+                        # Reset Generation System of all joined players
+                        generation_system.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                        # Reset Bids of all joined_players
+                        bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                        # Reset Construction Orders of all joined_players
+                        construction.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                        # Reset Merit Order Table
+                        bids_meritorder.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                        # Reset Backup Variables
+                        backup.objects.filter(game = hosted_game).delete() 
+                        # Alle Spieler werden aus dem Spiel entfernt
+                        for p in joined_players: 
                             p.joined_game = None
                             if p.ready:
                                 p.ready = not p.ready
@@ -531,15 +549,22 @@ def staff_profil(request):
             if request.method == "POST":
                 form_dg = DeleteGameSessionForm(request.POST)
                 if form_dg.is_valid():
-                    # Delete remaining Bids & Merit Order entries
-                    bids_meritorder.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete() # Reset
-                    bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete() # Reset
+                    # Reset Bids of all joined_players
+                    bids_meritorder.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                    # Reset Merit Order Table 
+                    bids.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                    # Reset Construction Orders of all joined_players
+                    construction.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                    # Reset Generation System of all joined players
+                    generation_system.objects.filter(user_id__in = joined_players.values_list('user_id', flat=True)).delete()
+                    # Reset Backup Variables
+                    backup.objects.filter(game = hosted_game).delete() 
                     # Remove any remaining joined Players
                     for p in joined_players: 
-                            p.joined_game = None
-                            if p.ready:
-                                p.ready = not p.ready
-                            p.save()
+                        p.joined_game = None
+                        if p.ready:
+                            p.ready = not p.ready
+                        p.save()
                     # Delete Game
                     hosted_game.delete()
                     messages.success(request, f'Game Deleted!')
