@@ -6,7 +6,6 @@ from users.models import (
     construction,
     bids,
     Profile,
-    generation_system,
     )
 from game.models import (
     settings, # Game settings
@@ -87,7 +86,7 @@ class SettingsForm(forms.ModelForm):
         self.user = user
         # Update the queryset for the name field based on profile.joined_game
         profile = Profile.objects.get(user = self.user)
-        self.fields['name'].queryset = settings.objects.filter(game = profile.joined_game)
+        self.fields['name'].queryset = settings.objects.filter(game = profile.joined_game).exclude(name = 'round').exclude(name = 'clearing_price')
 
     change_settings = forms.BooleanField(widget=forms.HiddenInput, initial=True)
     name = forms.ModelChoiceField(queryset=settings.objects.none(), to_field_name='name', required=True, widget=forms.Select(attrs={'class': 'form-control'}), label="Choose Setting")

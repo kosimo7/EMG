@@ -13,9 +13,15 @@
     <table class="table table-striped">
         <thead>
             <tr>
-            <th scope="col">Budget</th>
-            <th scope="col">Revenue</th>
-            <th scope="col">Total Cost</th>
+            <th scope="col">
+                Budget
+                <!-- Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bank" viewBox="0 0 16 16">
+                    <path d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.501.501 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89L8 0ZM3.777 3h8.447L8 1 3.777 3ZM2 6v7h1V6H2Zm2 0v7h2.5V6H4Zm3.5 0v7h1V6h-1Zm2 0v7H12V6H9.5ZM13 6v7h1V6h-1Zm2-1V4H1v1h14Zm-.39 9H1.39l-.25 1h13.72l-.25-1Z"/>
+                </svg>
+            </th>
+            <th scope="col">Revenue (last round)</th>
+            <th scope="col">Total Cost (last round)</th>
             <th scope="col">Profit (total)</th>
             </tr>
         </thead>
@@ -52,12 +58,45 @@
     <table class="table table-striped">
         <thead>
             <tr>
-            <th scope="col">Capacity Factor Wind (current round)</th>
-            <th scope="col">Capacity Factor Solar (current round)</th>
-            <th scope="col">Capacity Factor Wind t+1</th>
-            <th scope="col">Capacity Factor Solar t+1</th>
-            <th scope="col">Capacity Factor Wind t+2</th>
-            <th scope="col">Capacity Factor Solar t+2</th>
+            <th scope="col">
+                Capacity Factor Wind 
+                <img width="20" height="20" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACX0lEQVR4nO2az0tUURTHPylohWaFZoWmBoHRRsSVLbI2LqtF0j9gLpL6A4o2Ef0BbUIIahW4SC0koaJCGLHaVIsWWQr9sESDFJ02MXHhO3ARnPeezX3cW+8DZzEzh3fed+495553ZiAjI6OcVAKngPvAR+AX8FWvzwIVBEALMAUUSthLoBWPaQLmdbOzwHmgDagGmoF+4IM+/+azmJxu8hFQt4FPDfBQfi983WavZRuJKFKr3DFi+hLG6AXuADNAHlgB3gFDwAnKmORxv+FzEjIS0/+wteKFEvYEOESKHFBgU82iOA4sy38BuAp0Abu0VTuAS8o747MIHCUlqhTUlOaolfgp3wcR23YHMCzfJRUa57Qp4KcIv0n5jcbcthWWmKekwMWYOTKjUr47wbVrge+6fg8OabD2s+kASrEd2LaJGJd1/Zs4Yr9O9mKF2eIoTqdimNJcNrYCR4ArwA8FeA/swR11imPiRSbgZs00j/W4pUaxVsspJK+kvQUcIx26FPstgXNNQkzrEix7rVzsJlCqVQ2LuRgkzcBzifis56NgaFBTeQNYs9oeU+4j+dvy68p+A3eTlHafhCwAr4DrcVchIyPjP2TSUQXKa0x0W2dDsEIK62xcB16QfVK7HlMXJca0/40EzD6NVI2YZw4fiVOh3hqKnyZwLlhzraBptTraoKmKOVr1niTD7tRJ8vPDgITcw0PeyHbGmOHOSsgZPCSnm3tcQowRMSG/aV9/omuyzoc5YBA4qJO9RdupuBLzes/rJM5F9FrTvouwk/4kMGb9seCLDr8+X7dTRsa/zB9yijuqprAMOQAAAABJRU5ErkJggg==">
+                (current round)
+            </th>
+            <th scope="col">
+                Capacity Factor Solar 
+                <!-- Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ffc107" class="bi bi-sun-fill" viewBox="0 0 16 16">
+                    <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                </svg>
+                (current round)
+            </th>
+            <th scope="col">
+                Capacity Factor Wind 
+                <img width="20" height="20" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACX0lEQVR4nO2az0tUURTHPylohWaFZoWmBoHRRsSVLbI2LqtF0j9gLpL6A4o2Ef0BbUIIahW4SC0koaJCGLHaVIsWWQr9sESDFJ02MXHhO3ARnPeezX3cW+8DZzEzh3fed+495553ZiAjI6OcVAKngPvAR+AX8FWvzwIVBEALMAUUSthLoBWPaQLmdbOzwHmgDagGmoF+4IM+/+azmJxu8hFQt4FPDfBQfi983WavZRuJKFKr3DFi+hLG6AXuADNAHlgB3gFDwAnKmORxv+FzEjIS0/+wteKFEvYEOESKHFBgU82iOA4sy38BuAp0Abu0VTuAS8o747MIHCUlqhTUlOaolfgp3wcR23YHMCzfJRUa57Qp4KcIv0n5jcbcthWWmKekwMWYOTKjUr47wbVrge+6fg8OabD2s+kASrEd2LaJGJd1/Zs4Yr9O9mKF2eIoTqdimNJcNrYCR4ArwA8FeA/swR11imPiRSbgZs00j/W4pUaxVsspJK+kvQUcIx26FPstgXNNQkzrEix7rVzsJlCqVQ2LuRgkzcBzifis56NgaFBTeQNYs9oeU+4j+dvy68p+A3eTlHafhCwAr4DrcVchIyPjP2TSUQXKa0x0W2dDsEIK62xcB16QfVK7HlMXJca0/40EzD6NVI2YZw4fiVOh3hqKnyZwLlhzraBptTraoKmKOVr1niTD7tRJ8vPDgITcw0PeyHbGmOHOSsgZPCSnm3tcQowRMSG/aV9/omuyzoc5YBA4qJO9RdupuBLzes/rJM5F9FrTvouwk/4kMGb9seCLDr8+X7dTRsa/zB9yijuqprAMOQAAAABJRU5ErkJggg==">
+                t+1
+            </th>
+            <th scope="col">
+                Capacity Factor Solar 
+                <!-- Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ffc107" class="bi bi-sun-fill" viewBox="0 0 16 16">
+                    <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                </svg>
+                t+1
+            </th>
+            <th scope="col">
+                Capacity Factor Wind 
+                <img width="20" height="20" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACX0lEQVR4nO2az0tUURTHPylohWaFZoWmBoHRRsSVLbI2LqtF0j9gLpL6A4o2Ef0BbUIIahW4SC0koaJCGLHaVIsWWQr9sESDFJ02MXHhO3ARnPeezX3cW+8DZzEzh3fed+495553ZiAjI6OcVAKngPvAR+AX8FWvzwIVBEALMAUUSthLoBWPaQLmdbOzwHmgDagGmoF+4IM+/+azmJxu8hFQt4FPDfBQfi983WavZRuJKFKr3DFi+hLG6AXuADNAHlgB3gFDwAnKmORxv+FzEjIS0/+wteKFEvYEOESKHFBgU82iOA4sy38BuAp0Abu0VTuAS8o747MIHCUlqhTUlOaolfgp3wcR23YHMCzfJRUa57Qp4KcIv0n5jcbcthWWmKekwMWYOTKjUr47wbVrge+6fg8OabD2s+kASrEd2LaJGJd1/Zs4Yr9O9mKF2eIoTqdimNJcNrYCR4ArwA8FeA/swR11imPiRSbgZs00j/W4pUaxVsspJK+kvQUcIx26FPstgXNNQkzrEix7rVzsJlCqVQ2LuRgkzcBzifis56NgaFBTeQNYs9oeU+4j+dvy68p+A3eTlHafhCwAr4DrcVchIyPjP2TSUQXKa0x0W2dDsEIK62xcB16QfVK7HlMXJca0/40EzD6NVI2YZw4fiVOh3hqKnyZwLlhzraBptTraoKmKOVr1niTD7tRJ8vPDgITcw0PeyHbGmOHOSsgZPCSnm3tcQowRMSG/aV9/omuyzoc5YBA4qJO9RdupuBLzes/rJM5F9FrTvouwk/4kMGb9seCLDr8+X7dTRsa/zB9yijuqprAMOQAAAABJRU5ErkJggg==">
+                t+2
+            </th>
+            <th scope="col">
+                Capacity Factor Solar 
+                <!-- Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#ffc107" class="bi bi-sun-fill" viewBox="0 0 16 16">
+                    <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+                </svg>
+                t+2
+            </th>
             </tr>
         </thead>
         <tbody>
@@ -140,7 +179,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    <h5><strong>All available Power Plants</strong></h5>
+                    <h5><strong>Your installed Power Plants</strong></h5>
                 </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionGensys">
@@ -160,7 +199,7 @@
                             <tr scope="row">
                                 <td>{{ entry.technology}}</td>
                                 <td>{{ entry.entry_count}}</td>
-                                <td>{{ entry.total_capacity}}</td>  
+                                <td>{{ entry.total_capacity}} MW</td>  
                                 <td>{{ entry.until_decommissioned}}</td> 
                             </tr>
                             {% endfor %}
@@ -277,27 +316,27 @@
     
     <!-- Select Construction Technology Image Buttons -->
     <div class="button-container d-inline-block me-2" id="select-button-coal" data-technology="Coal">
-        <button class="btn btn-md btn-outline-secondary">
+        <button class="btn btn-md btn-outline-success">
             <img src="{% static '/images/coal.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
     <div class="button-container d-inline-block me-2" id="select-button-wind" data-technology="Wind">
-        <button class="btn btn-md btn-outline-secondary">
+        <button class="btn btn-md btn-outline-success">
             <img src="{% static '/images/wind.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
     <div class="button-container d-inline-block me-2" id="select-button-solar" data-technology="Solar">
-        <button class="btn btn-md btn-outline-secondary">
+        <button class="btn btn-md btn-outline-success">
             <img src="{% static '/images/solar.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
     <div class="button-container d-inline-block me-2" id="select-button-nuclear" data-technology="Nuclear">
-        <button class="btn btn-md btn-outline-secondary">
+        <button class="btn btn-md btn-outline-success">
             <img src="{% static '/images/nuclear.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
     <div class="button-container d-inline-block me-2" id="select-button-ccgt" data-technology="CCGT">
-        <button class="btn btn-md btn-outline-secondary">
+        <button class="btn btn-md btn-outline-success">
             <img src="{% static '/images/ccgt.jpg' %}" class="img-fluid" style="height: 60px; width: auto;">
         </button>
     </div>
@@ -399,7 +438,13 @@
 </div>
 
     
-    <a  href="{% url 'users-bidding' %}" class="btn btn-success mb-4" role="button" style="float:left; margin-right:100px;">Continue to Step Three: Bidding</a>
+    <a  href="{% url 'users-bidding' %}" class="btn btn-success mb-4" role="button" style="float:left; margin-right:100px;">
+        Continue to Step Three: Bidding
+        <!-- Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+        </svg>
+    </a>
 
     
     <!-- Go Back Button -->
