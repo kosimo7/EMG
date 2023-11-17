@@ -53,3 +53,4 @@ class backup(models.Model):
     game = models.ForeignKey(sessions, on_delete=models.CASCADE, to_field="name")
     name = models.CharField(max_length=30)
     value = models.DecimalField(decimal_places=2, max_digits=20, null=True)
+    round = models.IntegerField()

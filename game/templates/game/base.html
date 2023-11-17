@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- CSS -->
-<style type='text/css'>
+<style>
   body {
     /* Padding required for fixed-top navbar */
     padding-top: 60px; 
   }
-  </style>
+  .negative-number {
+    /* Display negativ values red */
+    color: red !important;
+  }
+  .positv-number {
+    /* Display positv values green */
+    color: rgb(2, 180, 13) !important;
+  }
+  .indicator {
+  border: 2px solid blue; /* Add a blue border for visibility */
+  }
+</style>
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -15,6 +26,8 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- Title -->
     {% if title %}
     <title>EMG - {{ title }}</title>
@@ -65,7 +78,8 @@
 <main role="main" class="container">
   <div class="row">
     <div class="col-md-12">
-      {% if messages %} <!--flash massages-->
+      <!--flash massages-->
+      {% if messages %} 
         {% for message in messages %}
           <div class="alert alert-{{ message.tags }}">  <!--zeigt die Message in der passenden Formatierung, weil hier Tags in Django=Tags in Bootstrap-->
             {{ message }}
@@ -96,10 +110,5 @@
   </div> -->
 </main>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> -->
 </body>
 </html>
