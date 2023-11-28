@@ -64,7 +64,7 @@
     </table>
 
     <!-- Plotly chart Price History-->
-    {% if round > 1 %}
+    {% if last_round > 1 %}
     {{ plot_price_line_chart|safe }}
     {% endif %}
 

@@ -641,15 +641,6 @@ def staff_profil(request):
         current_round = settings.objects.get(name='round', game = hosted_game).value
         max_round = settings.objects.get(name='max_round', game = hosted_game).value  
         player_count = len(joined_players.select_related('user').filter(user_id__in = not_staff).values_list('id', flat=True))
-        demand = demand_cf_set.get(round = current_round).demand * player_count
-        demand_forecast_plus1 = demand_cf_set.get(round = (current_round + 1)).demand * player_count
-        demand_forecast_plus2 = demand_cf_set.get(round = (current_round + 2)).demand * player_count
-        cf_wind = demand_cf_set.get(round = (current_round)).cf_wind
-        cf_pv = demand_cf_set.get(round = (current_round)).cf_pv
-        cf_wind_forecast_plus1 = demand_cf_set.get(round = (current_round + 1)).cf_wind
-        cf_solar_forecast_plus1 = demand_cf_set.get(round = (current_round + 1)).cf_pv
-        cf_wind_forecast_plus2 = demand_cf_set.get(round = (current_round + 2)).cf_wind
-        cf_solar_forecast_plus2 = demand_cf_set.get(round = (current_round + 2)).cf_pv
     else: # Weiterleitung
         messages.warning(request, f'Please choose a Game to host')
         return redirect('users-staff_new_game')
@@ -670,15 +661,8 @@ def staff_profil(request):
         'form_removeplayer': form_rp,
         'form_ex': form_export,
         'form_enforce': form_enforce,
-        'demand': demand,
-        'demand_forecast_plus1': demand_forecast_plus1,
-        'demand_forecast_plus2': demand_forecast_plus2,
-        'cf_wind': cf_wind,
-        'cf_solar': cf_pv,
-        'cf_wind_forecast_plus1': cf_wind_forecast_plus1,
-        'cf_wind_forecast_plus2': cf_wind_forecast_plus2,
-        'cf_solar_forecast_plus1': cf_solar_forecast_plus1,
-        'cf_solar_forecast_plus2': cf_solar_forecast_plus2,
+        'player_count': player_count,
+        'demand_cf_set': demand_cf_set,
     }
     return render(request,'users/staff_profile.html', context)
 

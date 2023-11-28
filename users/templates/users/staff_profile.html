@@ -1,10 +1,8 @@
 {% extends "game/base.html" %}
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% block content %}
-
-    <h1>{{ user.username }}'s Profile</h1>
     <h1>Gamemaster Control Center</h1>
-    
+    <h3>User: {{ user.username }}</h3>
     <h3>Currently hosting: {{ hosted_game }}</h3><br>
     
     <!-- Start/End Game Form -->
@@ -93,49 +91,9 @@
     </div>
     {% endif %}
 
-    <!-- Market Overview -->
-    <h4 style="clear:both">Demand and Weather forecast</h4>
-    <table class="table table-striped" >
-        <thead>
-            <tr>
-            <th scope="col">Demand (current round)</th>
-            <th scope="col">Demand t+1</th>
-            <th scope="col">Demand t+2</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr scope="row">
-                <td>{{ demand }} MWh</td>
-                <td>{{ demand_forecast_plus1 }} MWh</td> 
-                <td>{{ demand_forecast_plus2 }} MWh</td> 
-            </tr>
-        </tbody>
-    </table>    
-    <table class="table table-striped">
-        <thead>
-            <tr>
-            <th scope="col">Capacity Factor Wind (current round)</th>
-            <th scope="col">Capacity Factor Solar (current round)</th>
-            <th scope="col">Capacity Factor Wind t+1</th>
-            <th scope="col">Capacity Factor Solar t+1</th>
-            <th scope="col">Capacity Factor Wind t+2</th>
-            <th scope="col">Capacity Factor Solar t+2</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr scope="row">
-                <td>{{ cf_wind }} </td>
-                <td>{{ cf_solar }} </td> 
-                <td>{{ cf_wind_forecast_plus1 }} </td> 
-                <td>{{ cf_solar_forecast_plus1 }} </td> 
-                <td>{{ cf_wind_forecast_plus2 }} </td> 
-                <td>{{ cf_solar_forecast_plus2 }} </td> 
-            </tr>
-        </tbody>
-    </table>
-
+    
     <!-- Settings -->
-    <h3>Game Settings</h3>
+    <h3 class="mt-2">Game Settings</h3>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -167,17 +125,52 @@
         </form>
     </div>
 
+    <!-- Market Overview -->
+    <div class="accordion" id="accordionMarket">
+        <!-- 1 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOneMarket" aria-expanded="true" aria-controls="collapseOne">
+                    <h4><strong>Demand and Capacity Factors</strong> </h4>
+                </button>
+            </h2>
+            <div id="collapseOneMarket" class="accordion-collapse collapse show" data-bs-parent="#accordionMarket">
+                <div class="accordion-body">
+                <table class="table table-striped" >
+                    <thead>
+                        <tr>
+                        <th scope="col">Round</th>
+                        <th scope="col">Demand per Player</th>
+                        <th scope="col">Capacity Factor Wind</th>
+                        <th scope="col">Capacity Factor PV</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in demand_cf_set %}
+                        <tr scope="row">
+                            <td>{{ i.round }} </td>
+                            <td>{{ i.demand }} MWh</td>
+                            <td>{{ i.cf_wind }} </td>
+                            <td>{{ i.cf_pv }} </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>    
+            </div>
+        </div>
+    </div>
+
     <br>
     <h5 >Click here to view the detailed data for each generation technology, including costs associated with each unit</h5>
     <a  href="{% url 'game-data' %}" class="btn btn-info mb-4" role="button">Display Technology Data</a>
     <br>
-    <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh all Lists</a>
+    <a  class="btn btn-light mb-4" role="button" onClick="window.location.reload();">Refresh List</a>
     <div class="accordion" id="accordionPlayers">
         <!-- 1 -->
         <div class="accordion-item">
             <h2 class="accordion-header">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    <h4><strong>Joined Players</strong></h4>
+                    <h4><strong>Joined Players (Total: {{ player_count }})</strong></h4>
                 </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
@@ -238,110 +231,6 @@
                             </div>
                         </form>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="accordion-item">
-            <h2 lass="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                    <h4><strong>All Generation Systems</strong></h4>
-                </button>
-            </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
-                <div class="accordion-body">
-                    <!--Kraftwerkspark Tabelle-->
-                    <!-- <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">User ID</th>
-                                <th scope="col">Username</th>
-                                <th scope="col">ID</th>
-                                <th scope="col">Technology</th>
-                                <th scope="col">Verbleibende Laufzeit in Runden</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for gen in generation_systems %}
-                            <tr scope="row">
-                                <td>{{ gen.user_id}}</td>
-                                <td>{{ gen.user.username}}</td>
-                                <td>{{ gen.id}}</td>
-                                <td>{{ gen.technology}}</td> 
-                                <td>{{ gen.until_decommissioned}}</td> 
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table> -->
-                </div>
-            </div>
-        </div>
-        <!-- 3 -->
-        <div class="accordion-item">
-            <h2 lass="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                    <h4><strong>Construction Orders</strong></h4>
-                </button>
-            </h2>
-            <div id="collapseThree" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
-                <div class="accordion-body">
-                    <!--Kraftwerkspark Tabelle-->
-                    <!-- <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">User ID</th>
-                                <th scope="col">Username</th>
-                                <th scope="col">ID</th>
-                                <th scope="col">Technology</th>
-                                <th scope="col">Verbleibende Bauzeit in Runden</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for con in constructions %}
-                            <tr scope="row">
-                                <td>{{ con.user_id}}</td>
-                                <td>{{ con.user.username}}</td>
-                                <td>{{ con.id}}</td>
-                                <td>{{ con.technology}}</td> 
-                                <td>{{ con.until_constructed}}</td> 
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table> -->
-                </div>
-            </div>
-        </div>
-        <!-- 4 -->
-        <div class="accordion-item">
-            <h2 lass="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
-                    <h4><strong>Bids</strong></h4>
-                </button>
-            </h2>
-            <div id="collapseFour" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
-                <div class="accordion-body">
-                    <!-- Bids -->
-                    <!-- <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">User ID</th>
-                                <th scope="col">Username</th>
-                                <th scope="col">Technology</th>
-                                <th scope="col">Price €/MWh</th>
-                                <th scope="col">Capacity MW</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for b in bids %}
-                            <tr scope="row">
-                                <td>{{ b.user_id }}</td>
-                                <td>{{ b.user.username }}</td>
-                                <td>{{ b.technology }}</td>
-                                <td>{{ b.price }}</td>
-                                <td>{{ b.amount }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table> -->
                 </div>
             </div>
         </div>

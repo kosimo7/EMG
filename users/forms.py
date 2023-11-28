@@ -1,4 +1,4 @@
-#Forms
+# Forms
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -40,24 +40,21 @@ class ConstructionForm(forms.ModelForm): # Formular basierend auf der constructi
 # Decomission Form
 class DecommissionForm(forms.Form): 
     delete_generator = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
-    choices = tech.objects.values_list('technology', 'technology')
+    choices = list(tech.objects.values_list('technology', 'technology')) + [('','---------')] 
     techs = forms.ChoiceField(choices=choices, label='Choose Technology')
-    # techs = forms.ModelChoiceField(queryset=tech.objects.all(), label='Choose Technology')
     units = forms.IntegerField(initial=1, label='How many units?', required=True, min_value=1)
 
 # Bidding Form
 class BiddingForm(forms.ModelForm):
     submit_bid = forms.BooleanField(widget=forms.HiddenInput, initial=True)   # Versteckte Variable
-    price = forms.DecimalField(min_value=0, max_value=999 ,decimal_places=2, max_digits=10)
-    amount = forms.DecimalField(min_value=0, decimal_places=2, max_digits=10)
+    price = forms.DecimalField(min_value=0, max_value=999 ,decimal_places=2, max_digits=10, label='Price in €/MWh')
+    amount = forms.DecimalField(min_value=0, decimal_places=2, max_digits=10, label='Capacity in MW')
 
     class Meta:
         model = bids
         fields = ['technology', 'price', 'amount']
         labels = {
             'technology': 'Choose Technology',
-            'price': 'Price in €/MWh',
-            'amount': 'Capacity in MW'
         }
 
 # Delete Bids Form
@@ -106,14 +103,13 @@ class NextRoundForm(forms.Form):
 # New Game Session Form
 class NewGameSessionForm(forms.ModelForm):
     new_game = forms.BooleanField(widget=forms.HiddenInput, initial=True)
-    variables = forms.ModelChoiceField(queryset=demand_cf.objects.values_list('key', flat=True).distinct(), to_field_name='key')
+    variables = forms.ModelChoiceField(queryset=demand_cf.objects.values_list('key', flat=True).distinct(), to_field_name='key', label="Choose Scenario")
 
     class Meta:
         model = sessions
         fields = ['name', 'variables']
         labels = {
-            'name': 'Enter a unique Name, e.g. "Game 1"',
-            'variables': 'Choose a set of demand and capacity factor variables',
+            'name': 'Enter a unique Name for your Game',
         }
 
 # Delete Game Session Form
