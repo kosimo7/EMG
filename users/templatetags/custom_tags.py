@@ -22,3 +22,8 @@ def divide(a, b, *args, **kwargs):
 def subtract(a, b, *args, **kwargs):
     # simple tag to subtract variables within templates
     return a - b
+
+@register.simple_tag()
+def add(a, b, *args, **kwargs):
+    # simple tag to sum variables within templates
+    return a + b

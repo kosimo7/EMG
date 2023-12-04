@@ -9,8 +9,11 @@
 <h1>Final Round Results Overview</h1>
 {% endif %}
 <br>
+{% if game.final %}
+<h3>{{ game.name }}: Results of Round {{ round|floatformat:0 }}</h3>
+{% else %}
 <h3>{{ game.name }}: Results of Round {{ last_round|floatformat:0 }}</h3>
-
+{% endif %}
     <!-- Overview -->
     <table class="table table-striped">
         <thead>
@@ -178,7 +181,7 @@
 <br>
 {% if not game.final %}
 <h3>Proceed to Round {{ round|floatformat:0 }}</h3>
-<a  href="{% url 'users-profile' %}" class="btn btn-primary" role="button">
+<a  href="{% url 'users-profile' %}" class="btn btn-primary mb-4" role="button">
     Continue
     <!-- Icon -->
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">

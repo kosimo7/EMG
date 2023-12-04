@@ -60,7 +60,7 @@
                 {% if round != max_round %} 
                 <button class="btn btn-success" type="submit" onclick="return confirm('Are you sure?');" name="nxtrndbtn" >Start Next Round</button>
                 {% elif round == max_round %}
-                <button class="btn btn-success" type="submit" onclick="return confirm('Are you sure?');" name="fnlrndbtn" >Start Final Round</button>
+                <button class="btn btn-success" type="submit" onclick="return confirm('Are you sure?');" name="fnlrndbtn" >End Final Round</button>
                 {% endif %}
             </div>
         </form> 
@@ -130,11 +130,11 @@
         <!-- 1 -->
         <div class="accordion-item">
             <h2 class="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOneMarket" aria-expanded="true" aria-controls="collapseOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOneMarket" aria-expanded="false" aria-controls="collapseOne">
                     <h4><strong>Demand and Capacity Factors</strong> </h4>
                 </button>
             </h2>
-            <div id="collapseOneMarket" class="accordion-collapse collapse show" data-bs-parent="#accordionMarket">
+            <div id="collapseOneMarket" class="accordion-collapse collapse " data-bs-parent="#accordionMarket">
                 <div class="accordion-body">
                 <table class="table table-striped" >
                     <thead>
@@ -234,6 +234,37 @@
                 </div>
             </div>
         </div>
+        {% if gamemasters %}
+        <!-- 2 -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                    <h4><strong>Other Gamemasters</strong></h4>
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionPlayers">
+                <div class="accordion-body">
+                    <!--Profiles Table-->
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Username</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for g in gamemasters %}
+                            <tr scope="row">
+                                <td>{{ g.user_id}}</td>
+                                <td>{{ g.user.username}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
 {% endblock content%}
