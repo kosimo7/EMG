@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import HttpResponse
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .models import (
     tech,
@@ -25,7 +23,7 @@ def home(request):
 def about(request):
     return render(request, 'game/about.html', {"title": "About"})
 
-# Data Page View
+# Data Page View (alternative to display technology data)
 @login_required
 def data(request):
     profile = Profile.objects.get(user_id = request.user.id)
@@ -36,10 +34,10 @@ def data(request):
             if not profile.ready and sessions.objects.get(name = joined_game).ready:
                 current_game = sessions.objects.get(name = joined_game)
                 carbon_price = settings.objects.get(name='carbon_price', game = current_game).value
-            elif profile.ready and sessions.objects.get(name = joined_game).ready: # Spieler ist ready für die nächste Runde und das Spiel ist gestartet
+            elif profile.ready and sessions.objects.get(name = joined_game).ready: 
                 messages.warning(request, f'Please wait for the next round to start!')
                 return redirect('users-ready_room')
-            elif not sessions.objects.get(name = joined_game).ready: # Spieler ist einem Spiel beigetreten aber das Spiel ist noch nicht gestartet 
+            elif not sessions.objects.get(name = joined_game).ready:
                 messages.warning(request, f'Please wait for the Game to start!')
                 return redirect('users-waiting_room')
         else: 
@@ -56,7 +54,7 @@ def data(request):
     # HTML Variablen
     context ={
         "title": "Technology Data",
-        "datas": tech.objects.all(), #Variable für data.html, welche die gesamte tech Tabelle enthält
+        "datas": tech.objects.all(), 
         "carbon_price": carbon_price,
     }
     return render(request, 'game/data.html', context)

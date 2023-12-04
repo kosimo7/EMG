@@ -15,7 +15,8 @@
     color: rgb(2, 180, 13) !important;
   }
   .indicator {
-  border: 2px solid blue; /* Add a blue border for visibility */
+    /* Add a blue border for visibility */
+    border: 2px solid blue; 
   }
 </style>
 <head>
@@ -51,7 +52,7 @@
                 <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
               </div>
               <!-- Navbar Right Side -->
-              <div class="navbar-nav"> <!-- depended on login status -->
+              <div class="navbar-nav"> <!-- depends on login status -->
                 {% if user.is_authenticated %} <!-- View while logged in -->
                   {% if user.is_staff %}<!-- View while staff member -->
                   <a class="nav-item nav-link" href="{% url 'users-staff_new_game' %}">New Game</a>
@@ -81,7 +82,7 @@
       <!--flash massages-->
       {% if messages %} 
         {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">  <!--zeigt die Message in der passenden Formatierung, weil hier Tags in Django=Tags in Bootstrap-->
+          <div class="alert alert-{{ message.tags }}">  <!--messages-->
             {{ message }}
           </div>
         {% endfor %}
