@@ -14,19 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.contrib.auth import views as auth_views # Import der Standard django Login Views; Views immer *as Variable* importieren
+from django.contrib.auth import views as auth_views # Import django Login Views; import Views always *as Variable* 
+from users import views as user_views # import views.py from users-app as user_views
 from django.urls import path, include
-from users import views as user_views # import von views.py aus users-app unter Variable user_views
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('register/', user_views.register, name='users-register'), # Hier nicht mit include weil views.py direkt importiert wird
+    path('register/', user_views.register, name='users-register'), 
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='users-login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='users-logout'),
     path('profile/', user_views.profil, name='users-profile'),
     path('staff_profile/', user_views.staff_profil, name='users-staff_profile'),
-    path('', include('game.urls')), # weil der path hier leer ist, wird diese App zur homepage
+    path('', include('game.urls')), # include the game.urls file
     path('bidding/', user_views.bidding, name='users-bidding'),
     path('staff_new_game/', user_views.staff_new_game, name='users-staff_new_game'),
     path('join_game/', user_views.join_game, name='users-join_game'),
