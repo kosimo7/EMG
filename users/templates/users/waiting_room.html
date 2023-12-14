@@ -2,6 +2,7 @@
 {% load custom_tags %}
 {% load crispy_forms_tags %} <!--import Django Crispy Forms-->
 {% block content %}
+<!-- Page refresh every 10 seconds enables automatic users redirection after the game has started-->
 <meta http-equiv="refresh" content="10">
 
 <h1>You have successfully joined a game!</h1>
@@ -10,6 +11,7 @@
     <h1>Please wait for the Game to start.</h1>
 </div>
 <div class="d-inline-block ms-4">
+    <!-- Spinner Icon -->
     <div class="spinner-border text-success" role="status"> </div>
 </div>
 

@@ -7,7 +7,7 @@ from game.models import (
 
 # User profiles
 class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key to the User model
     budget = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
     revenue = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
     profit = models.DecimalField(decimal_places=2, max_digits=100, default=0.00)
@@ -20,8 +20,8 @@ class Profile(models.Model):
 
 # User generation system    
 class generation_system(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key
-    technology = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Generation Technology, Foreign Key
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key to the User model
+    technology = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Generation Technology, Foreign Key to the tech model
     capacity = models.IntegerField(default=0) # Capacity in MW
     until_decommissioned = models.PositiveIntegerField(default=0) # Remaining operational periods
 
@@ -30,8 +30,8 @@ class generation_system(models.Model):
 
 # User construction orders
 class construction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key
-    technology = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Generation Technology, Foreign Key
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key to the User model
+    technology = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Generation Technology, Foreign Key to the tech model
     until_constructed = models.PositiveIntegerField(default=0) # Remaining build time in rounds
 
     def __str__(self):
@@ -39,8 +39,8 @@ class construction(models.Model):
 
 # User bids
 class bids(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key
-    technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Chosen Technology, Foreign Key
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key to the User model
+    technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Chosen Technology, Foreign Key to the tech model
     price = models.DecimalField(decimal_places=2, max_digits=10)   # €/MWh
     amount = models.DecimalField(decimal_places=2, max_digits=10)  # MW
 
@@ -49,8 +49,8 @@ class bids(models.Model):
 
 # Accepted bids/ merit order
 class bids_meritorder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key
-    technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Chosen Technology, Foreign Key
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # Foreign Key to the User model
+    technology  = models.ForeignKey(tech, on_delete=models.CASCADE, to_field="technology", db_column="technology") # Chosen Technology, Foreign Key to the tech model
     price = models.DecimalField(decimal_places=2, max_digits=10)  # €/MWh
     amount = models.DecimalField(decimal_places=2, max_digits=10)  # MW
 

@@ -5,7 +5,8 @@ from .models import (
     Profile, 
     generation_system, 
     construction,
-    bids
+    bids,
+    bids_meritorder,
     )
 
 # Resources for export
@@ -25,4 +26,5 @@ admin.site.register(Profile, ImportExportModelAdmin)
 admin.site.register(generation_system)
 admin.site.register(construction)
 admin.site.register(bids)
+admin.site.register(bids_meritorder)
 
