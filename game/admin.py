@@ -6,6 +6,7 @@ from .models import (
     sessions, 
     settings,
     demand_cf,
+    backup,
     )
 
 # Resources for export
@@ -24,3 +25,4 @@ admin.site.register(tech)
 admin.site.register(settings)
 admin.site.register(sessions)
 admin.site.register(demand_cf, ImportExportModelAdmin)
+admin.site.register(backup)
